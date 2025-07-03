@@ -1,0 +1,24 @@
+[package]
+name = "db"
+version = "0.1.0"
+edition.workspace = true
+
+description = "Database library for rogue.hub.v2"
+
+[dependencies]
+sqlx = { version = "0.7", features = ["runtime-tokio", "tls-rustls", "postgres", "macros", "time", "uuid", "chrono"] }
+tokio.workspace = true
+anyhow.workspace = true
+log.workspace = true
+dotenv.workspace = true
+thiserror = "1.0"
+async-trait = "0.1"
+
+
+# Solana dependencies for type compatibility
+solana-sdk.workspace = true
+
+
+[lib]
+name = "db"
+path = "src/lib.rs"

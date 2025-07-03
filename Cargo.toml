@@ -1,0 +1,39 @@
+[workspace]
+resolver = "2"
+members = [
+    "indexer",
+    "database"
+    , "processor"]
+
+[workspace.package]
+
+edition = "2024"
+license = "MIT"
+
+
+
+[workspace.dependencies]
+
+
+log = "0.4.27"
+clap = { version = "4.5.39", features = ["derive"] }
+tokio = { version = "1.45.1", features = ["signal"] }
+env_logger = "0.9.3"
+dotenv = "0.15.0"
+anyhow = "1.0.98"
+serde = "1.0.219"
+chrono = "0.4.41"
+
+db = { path = "database" }
+
+# Solana
+solana-sdk = "2.2"
+solana-client = "2.2"
+solana-account-decoder = "2.2"
+solana-message = "2.2"
+solana-program = "2.2"
+solana-account = "2.2"
+solana-instruction = { version = "2.2", default-features = false }
+solana-pubkey = { version = "2.2", features = ["serde", "borsh", "curve25519"] }
+solana-transaction-status = "2.2"
+solana-commitment-config = "2.2"
