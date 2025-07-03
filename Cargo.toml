@@ -2,8 +2,9 @@
 resolver = "2"
 members = [
     "indexer",
-    "database"
-    , "processor"]
+    "database",
+    "decoder",
+    "processor"]
 
 [workspace.package]
 
@@ -22,13 +23,18 @@ env_logger = "0.9.3"
 dotenv = "0.15.0"
 anyhow = "1.0.98"
 serde = "1.0.219"
+serde_json = "1.0.140"
 chrono = "0.4.41"
+borsh = "0.10.3"
+borsh-derive = "0.10.3"
+
 
 db = { path = "database" }
+decoder = { path = "decoder" }
 
 # Solana
-solana-sdk = "2.2"
-solana-client = "2.2"
+solana-sdk = "2.3"
+solana-client = "2.3"
 solana-account-decoder = "2.2"
 solana-message = "2.2"
 solana-program = "2.2"
@@ -37,3 +43,5 @@ solana-instruction = { version = "2.2", default-features = false }
 solana-pubkey = { version = "2.2", features = ["serde", "borsh", "curve25519"] }
 solana-transaction-status = "2.2"
 solana-commitment-config = "2.2"
+
+anchor-decoder = "0.1.1"

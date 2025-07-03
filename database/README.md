@@ -133,7 +133,7 @@ The library also provides functionality for working with the signatures table.
 ```rust
 use db::{
     establish_connection, get_all_signatures, get_signature_by_id,
-    get_signatures_by_program_id, get_signatures_by_signature, get_signatures_by_date_range,
+    get_signatures_by_program_id, get_signatures_by_signature, get_signatures_by_timestamp_range,
     PublicKey, Signature,
 };
 use sqlx::types::time::OffsetDateTime;
@@ -150,7 +150,11 @@ async fn main() -> anyhow::Result<()> {
 
     // Get signatures by program ID
     let program_id = "traderDnaR5w6Tcoi3NFm53i48FTDNbGjBSZwWXDRrg".to_string();
-    let program_signatures = get_signatures_by_program_id(&pool, &program_id).await?;
+    // Get all signatures for the program
+    let program_signatures = get_signatures_by_program_id(&pool, &program_id, None).await?;
+
+    // Get only the 10 most recent signatures for the program
+    let limited_signatures = get_signatures_by_program_id(&pool, &program_id, Some(10)).await?;
 
     // Get signatures by signature value
     let signature_value = "5DBmWTHaz8VfgKbNrWs66ofUcxjvUGwcK1grZMog8fD4wfqpUuceCbMCY9Rs7iLssyFwL5LzPxLypgs5R5iyVwNr".to_string();
@@ -163,7 +167,7 @@ async fn main() -> anyhow::Result<()> {
     let one_hour_later = now + Duration::from_secs(3600);
     let one_hour_later_offset = OffsetDateTime::from(one_hour_later);
 
-    let date_range_signatures = get_signatures_by_date_range(
+    let date_range_signatures = get_signatures_by_timestamp_range(
         &pool, 
         one_hour_ago_offset, 
         one_hour_later_offset

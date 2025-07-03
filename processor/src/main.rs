@@ -1,17 +1,25 @@
 use crate::args::Args;
-use chrono::DateTime;
+
+use crate::convert::{processor_accounts, processor_data, processor_inner};
+use crate::processor::marketplace::MarketplaceProcessor;
+use base64::Engine;
 use clap::Parser;
-use db::{NewSignature, UpdateIndexer};
-use solana_client::rpc_client::{GetConfirmedSignaturesForAddress2Config, RpcClient};
+use solana_client::rpc_client::RpcClient;
+use solana_client::rpc_config::RpcTransactionConfig;
 use solana_commitment_config::CommitmentConfig;
+use solana_sdk::packet::Encode;
 use solana_sdk::pubkey::Pubkey;
 use solana_sdk::signature::Signature;
+use solana_transaction_status::{
+    EncodedTransaction, UiInstruction, UiMessage, UiParsedInstruction, UiTransactionEncoding,
+};
 use std::env;
 use std::str::FromStr;
 use std::time::Duration;
-use tokio::time::sleep;
 
 mod args;
+mod convert;
+mod processor;
 
 const SLEEP: Duration = Duration::from_secs(5);
 
@@ -25,68 +33,78 @@ pub async fn main() -> anyhow::Result<()> {
         .filter(None, log::LevelFilter::Info)
         .init();
 
-    let pool = db::establish_connection().await?;
-
-    let db_indexers = db::get_all_indexers(&pool).await?;
-
     let client = RpcClient::new_with_commitment(
         String::from(env::var("RPC_URL").expect("RPC_URL must be set")),
         CommitmentConfig::confirmed(),
     );
 
-    let indexer_id = db_indexers[0].id;
-    let program_id = Pubkey::from_str(db_indexers[0].program_id.as_str())?;
+    let transaction_config = RpcTransactionConfig {
+        commitment: CommitmentConfig::finalized().into(),
+        encoding: UiTransactionEncoding::JsonParsed.into(),
+        max_supported_transaction_version: Some(0),
+    };
 
-    loop {
-        let db_indexer = db::get_indexer_by_id(&pool, indexer_id).await?.unwrap();
+    let program_id = Pubkey::from_str(
+        env::var("PROGRAM_ID")
+            .expect("PROGRAM_ID must be set")
+            .as_str(),
+    )?;
 
-        let before_signature = match db_indexer.before_signature {
-            None => None,
-            Some(signature) => Some(Signature::from_str(signature.as_str())?),
+    let pool = db::establish_connection().await?;
+
+    let db_signatures =
+        db::get_signatures_by_program_id(&pool, &program_id.to_string(), Some(1000)).await?;
+
+    for db_signature in db_signatures {
+        let transaction = client.get_transaction_with_config(
+            &Signature::from_str(db_signature.signature.as_str()).unwrap(),
+            transaction_config,
+        )?;
+
+        let transaction_meta = transaction.transaction.meta.unwrap();
+
+        match transaction.transaction.transaction {
+            EncodedTransaction::Json(json) => match json.message {
+                UiMessage::Parsed(parsed) => {
+                    for (instruction_index, instruction) in
+                        parsed.instructions.into_iter().enumerate()
+                    {
+                        match instruction {
+                            UiInstruction::Parsed(parsed) => match parsed {
+                                UiParsedInstruction::PartiallyDecoded(instruction) => {
+                                    match Pubkey::from_str(instruction.program_id.as_str())? {
+                                        decoder::staratlas::marketplace::ID => {
+                                            println!("signature = {}", db_signature.signature);
+                                            MarketplaceProcessor::process(
+                                                db_signature.signature.clone(),
+                                                processor_data(instruction.data),
+                                                processor_accounts(instruction.accounts),
+                                                processor_inner(
+                                                    transaction_meta.clone(),
+                                                    instruction_index,
+                                                ),
+                                            );
+                                        }
+                                        _ => {}
+                                    }
+                                }
+                                UiParsedInstruction::Parsed(instruction) => {
+                                    match Pubkey::from_str(instruction.program_id.as_str())? {
+                                        decoder::staratlas::marketplace::ID => {
+                                            panic!("unimplemented for marketplace")
+                                        }
+                                        _ => {}
+                                    }
+                                }
+                            },
+                            _ => panic!("Unhandled UiInstruction type"),
+                        }
+                    }
+                }
+                _ => panic!("Unhandled UiMessage type"),
+            },
+            _ => panic!("Unhandled EncodedTransaction type"),
         };
-
-        let signatures_for_config = GetConfirmedSignaturesForAddress2Config {
-            before: before_signature,
-            until: None,
-            limit: Some(100),
-            commitment: CommitmentConfig::finalized().into(),
-        };
-
-        let signatures =
-            client.get_signatures_for_address_with_config(&program_id, signatures_for_config)?;
-
-        for signature in signatures.clone() {
-            let new_signature = NewSignature {
-                program_id: program_id.to_string(),
-                signature: signature.signature.to_string(),
-                slot: signature.slot as i64,
-                timestamp: DateTime::from_timestamp(signature.block_time.unwrap(), 0).unwrap(),
-            };
-
-            db::create_signature(&pool, &new_signature).await?;
-
-            let new_indexer = UpdateIndexer {
-                before_signature: Some(signature.signature.clone()),
-                before_block: Some(signature.slot as i64),
-                finished: Some(false),
-            };
-            db::update_indexer(&pool, db_indexer.id, &new_indexer).await?;
-        }
-
-        if (signatures.len() == 0) {
-            log::info!("[{}] no new signatures for {}", db_indexer.name, program_id);
-            return Ok(());
-        }
-
-        log::info!(
-            "[{}] added {} signatures for {}",
-            db_indexer.name,
-            signatures.len(),
-            program_id
-        );
-
-        sleep(SLEEP).await;
     }
-
     Ok(())
 }

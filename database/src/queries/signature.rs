@@ -20,7 +20,7 @@ use crate::types::{PublicKeyType, SignatureType};
 pub async fn get_all_signatures(pool: &DbPool) -> Result<Vec<SignatureRecord>> {
     let signatures = sqlx::query_as::<_, SignatureRecord>(
         r#"
-        SELECT id, program_id, signature, slot, timestamp
+        SELECT id, program_id, signature, slot, timestamp, processed
         FROM signatures
         ORDER BY timestamp DESC
         "#,
@@ -46,7 +46,7 @@ pub async fn get_all_signatures(pool: &DbPool) -> Result<Vec<SignatureRecord>> {
 pub async fn get_signature_by_id(pool: &DbPool, id: i32) -> Result<Option<SignatureRecord>> {
     let signature = sqlx::query_as::<_, SignatureRecord>(
         r#"
-        SELECT id, program_id, signature, slot, timestamp
+        SELECT id, program_id, signature, slot, timestamp, processed
         FROM signatures
         WHERE id = $1
         "#,
@@ -64,6 +64,7 @@ pub async fn get_signature_by_id(pool: &DbPool, id: i32) -> Result<Option<Signat
 /// # Arguments
 /// * `pool` - The database connection pool
 /// * `program_id` - The program ID to search for
+/// * `limit` - Optional maximum number of signatures to retrieve
 ///
 /// # Returns
 /// A vector of signatures with the specified program ID
@@ -73,19 +74,39 @@ pub async fn get_signature_by_id(pool: &DbPool, id: i32) -> Result<Option<Signat
 pub async fn get_signatures_by_program_id(
     pool: &DbPool,
     program_id: &PublicKeyType,
+    limit: Option<i64>,
 ) -> Result<Vec<SignatureRecord>> {
-    let signatures = sqlx::query_as::<_, SignatureRecord>(
-        r#"
-        SELECT id, program_id, signature, slot, timestamp
-        FROM signatures
-        WHERE program_id = $1
-        ORDER BY timestamp DESC
-        "#,
-    )
-    .bind(program_id.clone())
-    .fetch_all(pool)
-    .await
-    .map_err(DbError::SqlxError)?;
+    let query = match limit {
+        Some(limit_value) => {
+            sqlx::query_as::<_, SignatureRecord>(
+                r#"
+                SELECT id, program_id, signature, slot, timestamp, processed
+                FROM signatures
+                WHERE program_id = $1
+                ORDER BY timestamp DESC
+                LIMIT $2
+                "#,
+            )
+            .bind(program_id.clone())
+            .bind(limit_value)
+        }
+        None => {
+            sqlx::query_as::<_, SignatureRecord>(
+                r#"
+                SELECT id, program_id, signature, slot, timestamp, processed
+                FROM signatures
+                WHERE program_id = $1
+                ORDER BY timestamp DESC
+                "#,
+            )
+            .bind(program_id.clone())
+        }
+    };
+
+    let signatures = query
+        .fetch_all(pool)
+        .await
+        .map_err(DbError::SqlxError)?;
 
     Ok(signatures)
 }
@@ -107,7 +128,7 @@ pub async fn get_signatures_by_signature(
 ) -> Result<Vec<SignatureRecord>> {
     let signatures = sqlx::query_as::<_, SignatureRecord>(
         r#"
-        SELECT id, program_id, signature, slot, timestamp
+        SELECT id, program_id, signature, slot, timestamp, processed
         FROM signatures
         WHERE signature = $1
         ORDER BY timestamp DESC
@@ -224,4 +245,39 @@ pub async fn delete_signatures_by_program_id(
         .map_err(DbError::SqlxError)?;
 
     Ok(result.rows_affected())
+}
+
+/// Retrieves N unprocessed signatures by program ID
+///
+/// # Arguments
+/// * `pool` - The database connection pool
+/// * `program_id` - The program ID to search for
+/// * `limit` - The maximum number of signatures to retrieve
+///
+/// # Returns
+/// A vector of unprocessed signatures with the specified program ID
+///
+/// # Errors
+/// Returns an error if the query fails
+pub async fn get_unprocessed_signatures_by_program_id(
+    pool: &DbPool,
+    program_id: &PublicKeyType,
+    limit: i64,
+) -> Result<Vec<SignatureRecord>> {
+    let signatures = sqlx::query_as::<_, SignatureRecord>(
+        r#"
+        SELECT id, program_id, signature, slot, timestamp, processed
+        FROM signatures
+        WHERE program_id = $1 AND processed = false
+        ORDER BY timestamp ASC
+        LIMIT $2
+        "#,
+    )
+    .bind(program_id.clone())
+    .bind(limit)
+    .fetch_all(pool)
+    .await
+    .map_err(DbError::SqlxError)?;
+
+    Ok(signatures)
 }

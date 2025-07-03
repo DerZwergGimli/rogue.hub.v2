@@ -1,0 +1,1190 @@
+{
+  "address": "traderDnaR5w6Tcoi3NFm53i48FTDNbGjBSZwWXDRrg",
+  "metadata": {
+    "name": "marketplace",
+    "version": "0.1.0",
+    "spec": "0.1.0"
+  },
+  "instructions": [
+    {
+      "name": "add_fee_exemption",
+      "discriminator": [
+        189,
+        238,
+        101,
+        182,
+        238,
+        47,
+        93,
+        30
+      ],
+      "accounts": [
+        {
+          "name": "update_authority_master",
+          "signer": true
+        },
+        {
+          "name": "funder",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "market_vars_account"
+        },
+        {
+          "name": "fee_exempt_target",
+          "docs": [
+            "Who the fee exemption is for"
+          ]
+        },
+        {
+          "name": "fee_exempt_account",
+          "writable": true
+        },
+        {
+          "name": "system_program"
+        }
+      ],
+      "args": [
+        {
+          "name": "discount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "add_royalty_tier",
+      "discriminator": [
+        233,
+        33,
+        85,
+        96,
+        142,
+        116,
+        240,
+        66
+      ],
+      "accounts": [
+        {
+          "name": "update_authority_account",
+          "docs": [
+            "Transaction signer must be the update authority in the market",
+            "vars account"
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "market_vars_account",
+          "docs": [
+            "The `MarketVars` account"
+          ]
+        },
+        {
+          "name": "registered_currency",
+          "docs": [
+            ""
+          ],
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "stake_amount",
+          "type": "u64"
+        },
+        {
+          "name": "discount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "delete_royalty_tier",
+      "discriminator": [
+        74,
+        81,
+        94,
+        157,
+        102,
+        156,
+        188,
+        109
+      ],
+      "accounts": [
+        {
+          "name": "update_authority_account",
+          "docs": [
+            "Transaction signer must be the update authority in the market",
+            "vars account"
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "market_vars_account",
+          "docs": [
+            "The `MarketVars` account"
+          ]
+        },
+        {
+          "name": "registered_currency",
+          "docs": [
+            ""
+          ],
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "stake_amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "deregister_currency",
+      "discriminator": [
+        189,
+        233,
+        33,
+        25,
+        55,
+        216,
+        28,
+        90
+      ],
+      "accounts": [
+        {
+          "name": "update_authority_account",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "market_vars_account"
+        },
+        {
+          "name": "registered_currency",
+          "writable": true
+        },
+        {
+          "name": "currency_mint"
+        },
+        {
+          "name": "system_program"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "initialize_marketplace",
+      "discriminator": [
+        47,
+        81,
+        64,
+        0,
+        96,
+        56,
+        105,
+        7
+      ],
+      "accounts": [
+        {
+          "name": "update_authority_account",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "market_vars_account",
+          "writable": true
+        },
+        {
+          "name": "system_program"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "initialize_open_orders_counter",
+      "discriminator": [
+        221,
+        134,
+        5,
+        76,
+        4,
+        145,
+        202,
+        29
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "docs": [
+            "The account paying to open the `OpenOrderCounter`"
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "user"
+        },
+        {
+          "name": "open_orders_counter",
+          "writable": true
+        },
+        {
+          "name": "deposit_mint"
+        },
+        {
+          "name": "system_program"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "process_cancel",
+      "discriminator": [
+        85,
+        84,
+        214,
+        240,
+        140,
+        41,
+        230,
+        149
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "docs": [
+            "Must be either the market authority or the order initializer"
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "order_initializer",
+          "writable": true
+        },
+        {
+          "name": "market_vars_account"
+        },
+        {
+          "name": "deposit_mint"
+        },
+        {
+          "name": "initializer_deposit_token_account",
+          "docs": [
+            "Mint check based on asset/currency mint - validated in assert_init_deposit_token_acct()"
+          ],
+          "writable": true
+        },
+        {
+          "name": "order_vault_account",
+          "docs": [
+            "in function body"
+          ],
+          "writable": true
+        },
+        {
+          "name": "order_vault_authority"
+        },
+        {
+          "name": "order_account",
+          "writable": true
+        },
+        {
+          "name": "open_orders_counter",
+          "writable": true
+        },
+        {
+          "name": "token_program"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "process_exchange",
+      "discriminator": [
+        112,
+        194,
+        63,
+        99,
+        52,
+        147,
+        85,
+        48
+      ],
+      "accounts": [
+        {
+          "name": "order_taker",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "order_taker_deposit_token_account",
+          "writable": true
+        },
+        {
+          "name": "order_taker_receive_token_account",
+          "writable": true
+        },
+        {
+          "name": "currency_mint"
+        },
+        {
+          "name": "asset_mint"
+        },
+        {
+          "name": "order_initializer",
+          "writable": true
+        },
+        {
+          "name": "initializer_deposit_token_account",
+          "writable": true
+        },
+        {
+          "name": "initializer_receive_token_account",
+          "writable": true
+        },
+        {
+          "name": "order_vault_account",
+          "writable": true
+        },
+        {
+          "name": "order_vault_authority"
+        },
+        {
+          "name": "order_account",
+          "writable": true
+        },
+        {
+          "name": "sa_vault",
+          "docs": [
+            "Star Atlas vault account - must match account in registerd currency"
+          ],
+          "writable": true
+        },
+        {
+          "name": "registered_currency"
+        },
+        {
+          "name": "open_orders_counter",
+          "writable": true
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "atlas_staking",
+          "docs": [
+            "Atlas Staking program"
+          ]
+        },
+        {
+          "name": "registered_stake",
+          "docs": [
+            "Atlas `RegisteredStake` Account"
+          ]
+        },
+        {
+          "name": "staking_account",
+          "docs": [
+            "User's Atlas staking account"
+          ]
+        },
+        {
+          "name": "fee_reduction"
+        }
+      ],
+      "args": [
+        {
+          "name": "purchase_quantity",
+          "type": "u64"
+        },
+        {
+          "name": "expected_price",
+          "type": "u64"
+        },
+        {
+          "name": "seller",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "process_initialize_buy",
+      "discriminator": [
+        129,
+        142,
+        102,
+        190,
+        138,
+        103,
+        145,
+        131
+      ],
+      "accounts": [
+        {
+          "name": "order_initializer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "market_vars_account"
+        },
+        {
+          "name": "deposit_mint"
+        },
+        {
+          "name": "receive_mint"
+        },
+        {
+          "name": "order_vault_account",
+          "writable": true
+        },
+        {
+          "name": "order_vault_authority"
+        },
+        {
+          "name": "initializer_deposit_token_account",
+          "writable": true
+        },
+        {
+          "name": "initializer_receive_token_account",
+          "writable": true
+        },
+        {
+          "name": "order_account",
+          "writable": true
+        },
+        {
+          "name": "registered_currency"
+        },
+        {
+          "name": "open_orders_counter",
+          "writable": true
+        },
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "rent"
+        },
+        {
+          "name": "token_program"
+        }
+      ],
+      "args": [
+        {
+          "name": "price",
+          "type": "u64"
+        },
+        {
+          "name": "origination_qty",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "process_initialize_sell",
+      "discriminator": [
+        43,
+        42,
+        167,
+        252,
+        25,
+        47,
+        212,
+        225
+      ],
+      "accounts": [
+        {
+          "name": "order_initializer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "market_vars_account"
+        },
+        {
+          "name": "deposit_mint"
+        },
+        {
+          "name": "receive_mint"
+        },
+        {
+          "name": "order_vault_account",
+          "writable": true
+        },
+        {
+          "name": "order_vault_authority"
+        },
+        {
+          "name": "initializer_deposit_token_account",
+          "writable": true
+        },
+        {
+          "name": "initializer_receive_token_account"
+        },
+        {
+          "name": "order_account",
+          "writable": true
+        },
+        {
+          "name": "registered_currency"
+        },
+        {
+          "name": "open_orders_counter",
+          "writable": true
+        },
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "rent"
+        },
+        {
+          "name": "token_program"
+        }
+      ],
+      "args": [
+        {
+          "name": "price",
+          "type": "u64"
+        },
+        {
+          "name": "origination_qty",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "register_currency",
+      "discriminator": [
+        247,
+        229,
+        115,
+        204,
+        45,
+        36,
+        179,
+        104
+      ],
+      "accounts": [
+        {
+          "name": "update_authority_account",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "market_vars_account"
+        },
+        {
+          "name": "registered_currency",
+          "writable": true
+        },
+        {
+          "name": "currency_mint"
+        },
+        {
+          "name": "sa_currency_vault"
+        },
+        {
+          "name": "system_program"
+        }
+      ],
+      "args": [
+        {
+          "name": "royalty",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "remove_fee_exemption",
+      "discriminator": [
+        158,
+        59,
+        24,
+        139,
+        29,
+        141,
+        63,
+        15
+      ],
+      "accounts": [
+        {
+          "name": "update_authority_master",
+          "signer": true
+        },
+        {
+          "name": "funder",
+          "docs": [
+            "Where the funds go"
+          ],
+          "writable": true
+        },
+        {
+          "name": "market_vars_account"
+        },
+        {
+          "name": "fee_exempt_account",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "update_atlas_rate",
+      "discriminator": [
+        248,
+        83,
+        158,
+        40,
+        125,
+        174,
+        203,
+        212
+      ],
+      "accounts": [
+        {
+          "name": "funder",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "update_authority_account",
+          "signer": true
+        },
+        {
+          "name": "market_vars_account"
+        },
+        {
+          "name": "atlas_rate",
+          "writable": true
+        },
+        {
+          "name": "system_program"
+        }
+      ],
+      "args": [
+        {
+          "name": "rate",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "update_currency_royalty",
+      "discriminator": [
+        179,
+        232,
+        5,
+        42,
+        204,
+        90,
+        174,
+        248
+      ],
+      "accounts": [
+        {
+          "name": "update_authority_account",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "market_vars_account"
+        },
+        {
+          "name": "registered_currency",
+          "writable": true
+        },
+        {
+          "name": "currency_mint"
+        },
+        {
+          "name": "system_program"
+        }
+      ],
+      "args": [
+        {
+          "name": "royalty",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "update_currency_vault",
+      "discriminator": [
+        18,
+        136,
+        72,
+        31,
+        76,
+        242,
+        10,
+        82
+      ],
+      "accounts": [
+        {
+          "name": "update_authority_account",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "market_vars_account"
+        },
+        {
+          "name": "registered_currency",
+          "writable": true
+        },
+        {
+          "name": "currency_mint"
+        },
+        {
+          "name": "sa_currency_vault",
+          "docs": [
+            "New SA Currency vault"
+          ]
+        },
+        {
+          "name": "system_program"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "update_royalty_tier",
+      "discriminator": [
+        123,
+        112,
+        59,
+        126,
+        204,
+        180,
+        191,
+        178
+      ],
+      "accounts": [
+        {
+          "name": "update_authority_account",
+          "docs": [
+            "Transaction signer must be the update authority in the market",
+            "vars account"
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "market_vars_account",
+          "docs": [
+            "The `MarketVars` account"
+          ]
+        },
+        {
+          "name": "registered_currency",
+          "docs": [
+            ""
+          ],
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "stake_amount",
+          "type": "u64"
+        },
+        {
+          "name": "discount",
+          "type": "u64"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "AtlasRateAccount",
+      "discriminator": [
+        246,
+        171,
+        232,
+        144,
+        218,
+        236,
+        33,
+        161
+      ]
+    },
+    {
+      "name": "FeeReduction",
+      "discriminator": [
+        187,
+        248,
+        181,
+        2,
+        183,
+        165,
+        66,
+        175
+      ]
+    },
+    {
+      "name": "MarketVars",
+      "discriminator": [
+        255,
+        142,
+        134,
+        25,
+        56,
+        1,
+        219,
+        124
+      ]
+    },
+    {
+      "name": "OpenOrdersCounter",
+      "discriminator": [
+        245,
+        112,
+        49,
+        129,
+        46,
+        33,
+        183,
+        73
+      ]
+    },
+    {
+      "name": "OrderAccount",
+      "discriminator": [
+        79,
+        67,
+        112,
+        155,
+        214,
+        14,
+        32,
+        55
+      ]
+    },
+    {
+      "name": "RegisteredCurrency",
+      "discriminator": [
+        60,
+        114,
+        244,
+        134,
+        16,
+        166,
+        51,
+        149
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidDestinationAccount",
+      "msg": "Invalid Destination Token Account"
+    },
+    {
+      "code": 6001,
+      "name": "InvalidInstruction",
+      "msg": "Invalid instruction."
+    },
+    {
+      "code": 6002,
+      "name": "InvalidMint",
+      "msg": "Invalid SPL Token mint"
+    },
+    {
+      "code": 6003,
+      "name": "InvalidOfferAccountOwner",
+      "msg": "Invalid Offer Account Owner"
+    },
+    {
+      "code": 6004,
+      "name": "InvalidTokenAccount",
+      "msg": "Invalid SPL Token account"
+    },
+    {
+      "code": 6005,
+      "name": "NumericalOverflowError",
+      "msg": "Numerical overflow error"
+    },
+    {
+      "code": 6006,
+      "name": "InvalidUpdateAuthorityAccount",
+      "msg": "Invalid Update Authority account"
+    },
+    {
+      "code": 6007,
+      "name": "InvalidOrderVaultAuthorityAccount",
+      "msg": "Invalid Order Vault Authority account"
+    },
+    {
+      "code": 6008,
+      "name": "UninitializedTokenAccount",
+      "msg": "Uninitialized Token Account"
+    },
+    {
+      "code": 6009,
+      "name": "InsufficientBalance",
+      "msg": "Insufficient Balance"
+    },
+    {
+      "code": 6010,
+      "name": "InvalidOrderDuration",
+      "msg": "Invalid Order Duration"
+    },
+    {
+      "code": 6011,
+      "name": "InvalidOriginationQty",
+      "msg": "Origination quantity must be greater than 0"
+    },
+    {
+      "code": 6012,
+      "name": "InsufficientOrderQty",
+      "msg": "Insufficient Order Quantity Remaining"
+    },
+    {
+      "code": 6013,
+      "name": "InvalidRoyalty",
+      "msg": "Invalid Royalty Value"
+    },
+    {
+      "code": 6014,
+      "name": "InvalidCounter",
+      "msg": "Invalid Open Order Counter"
+    },
+    {
+      "code": 6015,
+      "name": "MintDecimalError",
+      "msg": "Mint must be zero decimal"
+    },
+    {
+      "code": 6016,
+      "name": "InvalidOrderAccountError",
+      "msg": "Order Account does not match provided account"
+    },
+    {
+      "code": 6017,
+      "name": "InvalidRoyaltyTier",
+      "msg": "No royalty tier exists with provided stake amount"
+    },
+    {
+      "code": 6018,
+      "name": "RoyaltyTierLength",
+      "msg": "Royalty Tier vector cannot hold any additional tiers"
+    },
+    {
+      "code": 6019,
+      "name": "InvalidOrderPrice",
+      "msg": "Order price did not match expected price"
+    },
+    {
+      "code": 6020,
+      "name": "DuplicateRoyaltyTier",
+      "msg": "Royalty tier already exists"
+    },
+    {
+      "code": 6021,
+      "name": "InvalidSeller",
+      "msg": "Order seller did not match expected seller"
+    }
+  ],
+  "types": [
+    {
+      "name": "OrderSide",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Buy"
+          },
+          {
+            "name": "Sell"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RoyaltyTier",
+      "docs": [
+        "A royalty tier which defines a discount rate for a given staked amount of tokens"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "stake_amount",
+            "type": "u64"
+          },
+          {
+            "name": "discount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AtlasRateAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "atlas_rate",
+            "docs": [
+              "`atlas_rate` * Atlas sub-tokens = USDC sub-tokens",
+              "`atlas_rate` = USDC sub-tokens/(`100` * Atlas sub-tokens)",
+              "`atlas_rate` = Atlas price/`100`"
+            ],
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "FeeReduction",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "account",
+            "type": "pubkey"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "discount",
+            "docs": [
+              "1_000_000 = 100% discount"
+            ],
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MarketVars",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "update_authority_master",
+            "type": "pubkey"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OpenOrdersCounter",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "open_order_count",
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OrderAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "order_initializer_pubkey",
+            "type": "pubkey"
+          },
+          {
+            "name": "currency_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "asset_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "initializer_currency_token_account",
+            "type": "pubkey"
+          },
+          {
+            "name": "initializer_asset_token_account",
+            "type": "pubkey"
+          },
+          {
+            "name": "order_side",
+            "type": {
+              "defined": {
+                "name": "OrderSide"
+              }
+            }
+          },
+          {
+            "name": "price",
+            "type": "u64"
+          },
+          {
+            "name": "order_origination_qty",
+            "type": "u64"
+          },
+          {
+            "name": "order_remaining_qty",
+            "type": "u64"
+          },
+          {
+            "name": "created_at_timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RegisteredCurrency",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "token_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "sa_currency_vault",
+            "type": "pubkey"
+          },
+          {
+            "name": "royalty",
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "royalty_tiers",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "RoyaltyTier"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
