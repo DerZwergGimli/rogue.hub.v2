@@ -1,0 +1,3841 @@
+{
+  "address": "BUDDYtQp7Di1xfojiCSVDksiYLQx511DPdj2nbtG9Yu5",
+  "metadata": {
+    "name": "buddylink",
+    "version": "1.0.0",
+    "spec": "0.1.0"
+  },
+  "instructions": [
+    {
+      "name": "init_buddylink_buddy_profile",
+      "docs": [
+        "Initializes the buddy profile of the \"buddylink\" user that gets automatically injected",
+        "in all new organization and in the global buddy link tree."
+      ],
+      "discriminator": [
+        108,
+        154,
+        84,
+        80,
+        223,
+        117,
+        142,
+        216
+      ],
+      "accounts": [
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "rent"
+        },
+        {
+          "name": "super_admin"
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "buddy",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "init_buddy_profile",
+      "discriminator": [
+        130,
+        30,
+        151,
+        235,
+        206,
+        80,
+        50,
+        80
+      ],
+      "accounts": [
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "rent"
+        },
+        {
+          "name": "instruction_sysvar_account"
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "referrer_shared_treasury",
+          "optional": true
+        },
+        {
+          "name": "buddy",
+          "writable": true
+        },
+        {
+          "name": "buddy_name",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "init_buddy_profile_with_payer",
+      "discriminator": [
+        27,
+        216,
+        31,
+        173,
+        220,
+        129,
+        2,
+        115
+      ],
+      "accounts": [
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "rent"
+        },
+        {
+          "name": "instruction_sysvar_account"
+        },
+        {
+          "name": "authority",
+          "signer": true
+        },
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "referrer_shared_treasury",
+          "optional": true
+        },
+        {
+          "name": "buddy",
+          "writable": true
+        },
+        {
+          "name": "buddy_name",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "init_buddy_paid",
+      "discriminator": [
+        248,
+        226,
+        160,
+        64,
+        236,
+        201,
+        111,
+        124
+      ],
+      "accounts": [
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "rent"
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "buddy_profile"
+        },
+        {
+          "name": "referrer_shared_treasury",
+          "optional": true
+        },
+        {
+          "name": "buddy",
+          "writable": true
+        },
+        {
+          "name": "buddy_name",
+          "writable": true
+        },
+        {
+          "name": "usdc_mint",
+          "optional": true
+        },
+        {
+          "name": "usdc_token_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "buddylink_usdc_token_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "referrer_usdc_shared_treasury",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "referrer_usdc_token_account",
+          "writable": true,
+          "optional": true
+        }
+      ],
+      "args": [
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "init_buddy_treasury",
+      "discriminator": [
+        88,
+        137,
+        76,
+        67,
+        1,
+        175,
+        121,
+        169
+      ],
+      "accounts": [
+        {
+          "name": "associated_token_program"
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "rent"
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "owner1",
+          "writable": true
+        },
+        {
+          "name": "owner2",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "owner3",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "owner4",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "mint",
+          "optional": true
+        },
+        {
+          "name": "buddy_treasury",
+          "writable": true
+        },
+        {
+          "name": "buddy_token_account",
+          "writable": true,
+          "optional": true
+        }
+      ],
+      "args": [
+        {
+          "name": "referrers_shares",
+          "type": {
+            "vec": "u16"
+          }
+        }
+      ]
+    },
+    {
+      "name": "init_buddy_treasury_with_payer",
+      "discriminator": [
+        52,
+        11,
+        168,
+        171,
+        43,
+        20,
+        159,
+        247
+      ],
+      "accounts": [
+        {
+          "name": "associated_token_program"
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "rent"
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "owner1",
+          "writable": true
+        },
+        {
+          "name": "owner2",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "owner3",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "owner4",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "mint",
+          "optional": true
+        },
+        {
+          "name": "buddy_treasury",
+          "writable": true
+        },
+        {
+          "name": "buddy_token_account",
+          "writable": true,
+          "optional": true
+        }
+      ],
+      "args": [
+        {
+          "name": "referrers_shares",
+          "type": {
+            "vec": "u16"
+          }
+        }
+      ]
+    },
+    {
+      "name": "init_member",
+      "discriminator": [
+        31,
+        126,
+        4,
+        35,
+        8,
+        198,
+        89,
+        93
+      ],
+      "accounts": [
+        {
+          "name": "associated_token_program"
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "rent"
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "organization"
+        },
+        {
+          "name": "mint",
+          "optional": true
+        },
+        {
+          "name": "buddy_profile"
+        },
+        {
+          "name": "buddy"
+        },
+        {
+          "name": "global_referrer_treasury",
+          "optional": true
+        },
+        {
+          "name": "owner_treasury"
+        },
+        {
+          "name": "referrer_treasury",
+          "optional": true
+        },
+        {
+          "name": "member",
+          "writable": true
+        },
+        {
+          "name": "owner_treasury_token_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "referrer_treasury_token_account",
+          "writable": true,
+          "optional": true
+        }
+      ],
+      "args": [
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "init_member_with_payer",
+      "discriminator": [
+        14,
+        44,
+        145,
+        219,
+        70,
+        162,
+        122,
+        211
+      ],
+      "accounts": [
+        {
+          "name": "associated_token_program"
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "rent"
+        },
+        {
+          "name": "authority",
+          "signer": true
+        },
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "organization"
+        },
+        {
+          "name": "mint",
+          "optional": true
+        },
+        {
+          "name": "buddy_profile"
+        },
+        {
+          "name": "buddy"
+        },
+        {
+          "name": "global_referrer_treasury",
+          "optional": true
+        },
+        {
+          "name": "owner_treasury"
+        },
+        {
+          "name": "referrer_treasury",
+          "optional": true
+        },
+        {
+          "name": "member",
+          "writable": true
+        },
+        {
+          "name": "owner_treasury_token_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "referrer_treasury_token_account",
+          "writable": true,
+          "optional": true
+        }
+      ],
+      "args": [
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "init_member_statistics",
+      "discriminator": [
+        97,
+        201,
+        164,
+        94,
+        159,
+        218,
+        86,
+        171
+      ],
+      "accounts": [
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "rent"
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "organization"
+        },
+        {
+          "name": "member"
+        },
+        {
+          "name": "member_statistics",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "init_ambassador",
+      "discriminator": [
+        80,
+        72,
+        69,
+        136,
+        244,
+        190,
+        47,
+        61
+      ],
+      "accounts": [
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "rent"
+        },
+        {
+          "name": "super_admin"
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "ambassador",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "init_master_organization",
+      "discriminator": [
+        54,
+        91,
+        209,
+        187,
+        227,
+        87,
+        91,
+        119
+      ],
+      "accounts": [
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "rent"
+        },
+        {
+          "name": "super_admin"
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "master_organization",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "bl_nft_signer",
+          "writable": true,
+          "optional": true
+        }
+      ],
+      "args": [
+        {
+          "name": "ambassador_share_kept_in_bps",
+          "type": "u16"
+        }
+      ]
+    },
+    {
+      "name": "init_master_organization_treasury",
+      "discriminator": [
+        48,
+        93,
+        240,
+        245,
+        145,
+        4,
+        23,
+        238
+      ],
+      "accounts": [
+        {
+          "name": "associated_token_program"
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "rent"
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "master_organization"
+        },
+        {
+          "name": "mint",
+          "optional": true
+        },
+        {
+          "name": "master_organization_treasury",
+          "writable": true
+        },
+        {
+          "name": "master_organization_token_account",
+          "writable": true,
+          "optional": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "init_organization",
+      "discriminator": [
+        171,
+        72,
+        198,
+        11,
+        143,
+        41,
+        51,
+        66
+      ],
+      "accounts": [
+        {
+          "name": "associated_token_program"
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "rent"
+        },
+        {
+          "name": "super_admin"
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "organization",
+          "writable": true
+        },
+        {
+          "name": "organization_name",
+          "writable": true
+        },
+        {
+          "name": "mint",
+          "optional": true
+        },
+        {
+          "name": "buddylink_buddy"
+        },
+        {
+          "name": "buddylink_buddy_treasury",
+          "writable": true
+        },
+        {
+          "name": "buddylink_buddy_token_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "buddylink_buddy_member",
+          "writable": true
+        },
+        {
+          "name": "ambassador",
+          "optional": true
+        },
+        {
+          "name": "usdc_mint",
+          "optional": true
+        },
+        {
+          "name": "usdc_token_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "buddylink_usdc_token_account",
+          "writable": true,
+          "optional": true
+        }
+      ],
+      "args": [
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "main_token_mint",
+          "type": {
+            "option": "pubkey"
+          }
+        },
+        {
+          "name": "enforce_wallet_uniqueness",
+          "type": "bool"
+        },
+        {
+          "name": "allow_multi_level",
+          "type": "bool"
+        },
+        {
+          "name": "ambassador_bps",
+          "type": {
+            "option": "u16"
+          }
+        },
+        {
+          "name": "allow_multi_attribution",
+          "type": "bool"
+        },
+        {
+          "name": "volume_required_for_rewards",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "claim_nft",
+      "discriminator": [
+        6,
+        193,
+        146,
+        120,
+        48,
+        218,
+        69,
+        33
+      ],
+      "accounts": [
+        {
+          "name": "associated_token_program"
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "rent"
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "buddy_profile"
+        },
+        {
+          "name": "buddy"
+        },
+        {
+          "name": "buddy_treasury",
+          "writable": true
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "buddy_token_account",
+          "writable": true
+        },
+        {
+          "name": "user_token_account",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "claim",
+      "docs": [
+        "Claim the amounts that are claimable by the user, those amounts support multi level, meaning",
+        "the referrer will get part of the amounts."
+      ],
+      "discriminator": [
+        62,
+        198,
+        214,
+        193,
+        213,
+        159,
+        108,
+        210
+      ],
+      "accounts": [
+        {
+          "name": "associated_token_program"
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "rent"
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "master_organization",
+          "writable": true
+        },
+        {
+          "name": "master_organization_treasury",
+          "writable": true
+        },
+        {
+          "name": "referrer_treasury",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "referrer_treasury_for_reward",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "buddy_profile"
+        },
+        {
+          "name": "buddy"
+        },
+        {
+          "name": "buddy_treasury",
+          "writable": true
+        },
+        {
+          "name": "receiver_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "mint",
+          "optional": true
+        },
+        {
+          "name": "master_organization_token_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "referrer_token_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "buddy_token_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "user_token_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "organization",
+          "writable": true,
+          "optional": true
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": {
+            "option": "u64"
+          }
+        }
+      ]
+    },
+    {
+      "name": "no_multi_level_claim",
+      "docs": [
+        "Claim the amounts that are claimable by the user, those amounts do not support multi level,",
+        "meaning the referrer doesn't get anything."
+      ],
+      "discriminator": [
+        219,
+        22,
+        166,
+        16,
+        62,
+        130,
+        39,
+        58
+      ],
+      "accounts": [
+        {
+          "name": "associated_token_program"
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "rent"
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "master_organization",
+          "writable": true
+        },
+        {
+          "name": "master_organization_treasury",
+          "writable": true
+        },
+        {
+          "name": "buddy_profile"
+        },
+        {
+          "name": "buddy"
+        },
+        {
+          "name": "buddy_treasury",
+          "writable": true
+        },
+        {
+          "name": "receiver_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "mint",
+          "optional": true
+        },
+        {
+          "name": "master_organization_token_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "buddy_token_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "user_token_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "organization",
+          "writable": true,
+          "optional": true
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": {
+            "option": "u64"
+          }
+        }
+      ]
+    },
+    {
+      "name": "ambassador_claim",
+      "discriminator": [
+        139,
+        40,
+        177,
+        47,
+        16,
+        157,
+        49,
+        182
+      ],
+      "accounts": [
+        {
+          "name": "associated_token_program"
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "rent"
+        },
+        {
+          "name": "super_admin"
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "ambassador"
+        },
+        {
+          "name": "ambassador_claimed",
+          "writable": true
+        },
+        {
+          "name": "master_organization_treasury",
+          "writable": true
+        },
+        {
+          "name": "organization"
+        },
+        {
+          "name": "receiver_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "mint",
+          "optional": true
+        },
+        {
+          "name": "master_organization_token_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "ambassador_token_account",
+          "writable": true,
+          "optional": true
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "master_organization_claim",
+      "discriminator": [
+        221,
+        45,
+        21,
+        218,
+        111,
+        216,
+        35,
+        7
+      ],
+      "accounts": [
+        {
+          "name": "associated_token_program"
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "rent"
+        },
+        {
+          "name": "super_admin"
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "master_organization"
+        },
+        {
+          "name": "master_organization_treasury",
+          "writable": true
+        },
+        {
+          "name": "receiver_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "mint",
+          "optional": true
+        },
+        {
+          "name": "master_organization_token_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "user_token_account",
+          "writable": true,
+          "optional": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "claim_star_atlas",
+      "discriminator": [
+        208,
+        17,
+        252,
+        85,
+        200,
+        221,
+        139,
+        201
+      ],
+      "accounts": [
+        {
+          "name": "associated_token_program"
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "rent"
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "bl_nft_signer",
+          "writable": true
+        },
+        {
+          "name": "buddy_profile"
+        },
+        {
+          "name": "buddy"
+        },
+        {
+          "name": "buddy_treasury"
+        },
+        {
+          "name": "organization"
+        },
+        {
+          "name": "member"
+        },
+        {
+          "name": "member_statistics",
+          "writable": true
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "buddy_link_token_account",
+          "writable": true
+        },
+        {
+          "name": "user_token_account",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": {
+            "option": "u64"
+          }
+        }
+      ]
+    },
+    {
+      "name": "transfer_up",
+      "docs": [
+        "This is the same as claiming, except for the claim part of the \"referee\". This is used",
+        "by referrer to permission-lessly claim their amounts, without having to wait for the",
+        "referee to claim. This does support multi level."
+      ],
+      "discriminator": [
+        116,
+        172,
+        122,
+        199,
+        115,
+        123,
+        246,
+        13
+      ],
+      "accounts": [
+        {
+          "name": "associated_token_program"
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "rent"
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "master_organization",
+          "writable": true
+        },
+        {
+          "name": "master_organization_treasury",
+          "writable": true
+        },
+        {
+          "name": "referrer_treasury",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "referrer_treasury_for_reward",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "buddy_profile"
+        },
+        {
+          "name": "buddy"
+        },
+        {
+          "name": "buddy_treasury",
+          "writable": true
+        },
+        {
+          "name": "mint",
+          "optional": true
+        },
+        {
+          "name": "master_organization_token_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "referrer_token_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "buddy_token_account",
+          "writable": true,
+          "optional": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "no_multi_level_transfer_up",
+      "docs": [
+        "This is the same as claiming, except for the claim part of the \"referee\". This is used",
+        "by referrer to permission-lessly claim their amounts, without having to wait for the",
+        "referee to claim. This doesn't support multi level."
+      ],
+      "discriminator": [
+        241,
+        254,
+        168,
+        170,
+        123,
+        241,
+        182,
+        14
+      ],
+      "accounts": [
+        {
+          "name": "associated_token_program"
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "rent"
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "master_organization",
+          "writable": true
+        },
+        {
+          "name": "master_organization_treasury",
+          "writable": true
+        },
+        {
+          "name": "buddy_profile"
+        },
+        {
+          "name": "buddy"
+        },
+        {
+          "name": "buddy_treasury",
+          "writable": true
+        },
+        {
+          "name": "mint",
+          "optional": true
+        },
+        {
+          "name": "master_organization_token_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "buddy_token_account",
+          "writable": true,
+          "optional": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "transfer_reward_nft",
+      "docs": [
+        "Transfer an NFT as a reward"
+      ],
+      "discriminator": [
+        101,
+        125,
+        214,
+        255,
+        218,
+        230,
+        2,
+        156
+      ],
+      "accounts": [
+        {
+          "name": "associated_token_program"
+        },
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "rent"
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "referrer_treasury",
+          "writable": true
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "referee_token_account",
+          "writable": true
+        },
+        {
+          "name": "referrer_token_account",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "transfer_reward_no_multi_level",
+      "docs": [
+        "Transfer a reward to the referrer of the member that made an activity that warrants rewards,",
+        "but is added to the no multi level amount.",
+        "",
+        "Does not support global buddies",
+        "Supports SPL and SOL",
+        "Validates the accounts"
+      ],
+      "discriminator": [
+        202,
+        255,
+        133,
+        38,
+        135,
+        13,
+        86,
+        159
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "referrer_member",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "referrer_treasury",
+          "writable": true
+        },
+        {
+          "name": "referrer_treasury_for_reward",
+          "writable": true
+        },
+        {
+          "name": "buddy",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "optional": true
+        },
+        {
+          "name": "mint",
+          "optional": true
+        },
+        {
+          "name": "token_program",
+          "optional": true
+        },
+        {
+          "name": "referee_token_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "referrer_token_account",
+          "writable": true,
+          "optional": true
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "transfer_reward_checked",
+      "docs": [
+        "Transfer a reward to the referrer of the member that made an activity that warrants rewards.",
+        "",
+        "Supports Global Buddies (boolean to allow or not)",
+        "Supports SPL and SOL",
+        "Validates the accounts"
+      ],
+      "discriminator": [
+        127,
+        145,
+        230,
+        119,
+        200,
+        13,
+        212,
+        144
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "buddy_global_referrer_treasury",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "buddy_global_referrer_token_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "buddy",
+          "writable": true
+        },
+        {
+          "name": "referrer_member",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "referrer_treasury",
+          "writable": true
+        },
+        {
+          "name": "referrer_treasury_for_reward",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "optional": true
+        },
+        {
+          "name": "mint",
+          "optional": true
+        },
+        {
+          "name": "token_program",
+          "optional": true
+        },
+        {
+          "name": "referee_token_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "referrer_token_account",
+          "writable": true,
+          "optional": true
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "allow_multi_level",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "transfer_reward_global",
+      "docs": [
+        "Transfer a reward to the referrer of the member that made an activity that warrants rewards,",
+        "at the global buddy level only.",
+        "",
+        "Supports Global Buddies",
+        "Supports SPL and SOL",
+        "Validates the accounts"
+      ],
+      "discriminator": [
+        160,
+        201,
+        210,
+        182,
+        93,
+        220,
+        117,
+        92
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "global_referrer_treasury",
+          "writable": true
+        },
+        {
+          "name": "global_referrer_treasury_for_reward",
+          "writable": true
+        },
+        {
+          "name": "buddy_profile"
+        },
+        {
+          "name": "buddy"
+        },
+        {
+          "name": "system_program",
+          "optional": true
+        },
+        {
+          "name": "mint",
+          "optional": true
+        },
+        {
+          "name": "token_program",
+          "optional": true
+        },
+        {
+          "name": "global_referrer_token_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "referee_token_account",
+          "writable": true,
+          "optional": true
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "transfer_reward_with_bps",
+      "docs": [
+        "Transfer a reward to the referrer of the member that made an activity that warrants rewards.",
+        "Only difference is you send the BPS you want to give from the amount, so if you gives",
+        "20% of your fee as reward, then you'd send 2000 bps and the full amount as arguments,",
+        "and the calculation is done for you.",
+        "",
+        "Supports Global Buddies (boolean to allow or not)",
+        "Supports SPL and SOL",
+        "Validates the accounts"
+      ],
+      "discriminator": [
+        225,
+        3,
+        254,
+        202,
+        164,
+        216,
+        232,
+        115
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "buddy_global_referrer_treasury",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "buddy_global_referrer_token_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "buddy",
+          "writable": true
+        },
+        {
+          "name": "referrer_member",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "referrer_treasury",
+          "writable": true
+        },
+        {
+          "name": "referrer_treasury_for_reward",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "optional": true
+        },
+        {
+          "name": "mint",
+          "optional": true
+        },
+        {
+          "name": "token_program",
+          "optional": true
+        },
+        {
+          "name": "referee_token_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "referrer_token_account",
+          "writable": true,
+          "optional": true
+        }
+      ],
+      "args": [
+        {
+          "name": "total_amount",
+          "type": "u64"
+        },
+        {
+          "name": "allow_multi_level",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "transfer_reward_spl",
+      "docs": [
+        "Transfer a reward to the referrer of the member that made an activity that warrants rewards.",
+        "",
+        "Supports Global Buddies (boolean to allow or not)",
+        "Supports SPL",
+        "Validates the accounts"
+      ],
+      "discriminator": [
+        96,
+        240,
+        108,
+        156,
+        27,
+        222,
+        43,
+        52
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "buddy_global_referrer_treasury",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "buddy_global_referrer_token_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "referrer_member",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "referrer_treasury",
+          "writable": true
+        },
+        {
+          "name": "referrer_treasury_for_reward",
+          "writable": true
+        },
+        {
+          "name": "buddy",
+          "writable": true
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "referee_token_account",
+          "writable": true
+        },
+        {
+          "name": "referrer_token_account",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "transfer_reward_unchecked_multiple",
+      "docs": [
+        "Transfer the reward to multiple referrer of the multiple referees. You send the shares",
+        "of each referrer as well as the total amount, and then the reward is split between",
+        "all of them.",
+        "",
+        "There is a flag to say if the \"member\" accounts are included, which are needed",
+        "if the company wants to use on-chain analytics (rewards received), but is optional.",
+        "",
+        "Does not support Global Buddies",
+        "Supports SPL and SOL",
+        "Does not validate any account"
+      ],
+      "discriminator": [
+        228,
+        217,
+        40,
+        252,
+        58,
+        66,
+        148,
+        69
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "optional": true
+        },
+        {
+          "name": "mint",
+          "optional": true
+        },
+        {
+          "name": "token_program",
+          "optional": true
+        },
+        {
+          "name": "referee_token_account",
+          "writable": true,
+          "optional": true
+        }
+      ],
+      "args": [
+        {
+          "name": "total_amount",
+          "type": "u64"
+        },
+        {
+          "name": "shares_in_bps",
+          "type": {
+            "vec": "u16"
+          }
+        },
+        {
+          "name": "members_included",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "transfer_reward_secure_no_global",
+      "docs": [
+        "Transfer a reward to the referrer of the member that made an activity that warrants rewards,",
+        "at the global buddy level only.",
+        "",
+        "Does not support Global Buddies",
+        "Supports SPL",
+        "Validates the accounts (ALL OF THEM)",
+        "",
+        "This is the method to use if no smart contract is used by the company and only their front",
+        "end is used."
+      ],
+      "discriminator": [
+        174,
+        15,
+        234,
+        146,
+        49,
+        183,
+        195,
+        64
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "referee_token_account",
+          "writable": true
+        },
+        {
+          "name": "referrer_member",
+          "writable": true
+        },
+        {
+          "name": "referrer_treasury",
+          "writable": true
+        },
+        {
+          "name": "referrer_treasury_for_reward",
+          "writable": true
+        },
+        {
+          "name": "buddy_profile"
+        },
+        {
+          "name": "buddy"
+        },
+        {
+          "name": "buddy_treasury",
+          "writable": true
+        },
+        {
+          "name": "member",
+          "writable": true
+        },
+        {
+          "name": "referrer_token_account",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "transfer_reward_star_atlas",
+      "discriminator": [
+        5,
+        42,
+        19,
+        212,
+        133,
+        147,
+        124,
+        138
+      ],
+      "accounts": [
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "authority",
+          "signer": true
+        },
+        {
+          "name": "program_signer",
+          "signer": true
+        },
+        {
+          "name": "funder",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "referee_token_account",
+          "writable": true
+        },
+        {
+          "name": "referrer_member",
+          "writable": true
+        },
+        {
+          "name": "referrer_member_statistics",
+          "writable": true
+        },
+        {
+          "name": "referrer_treasury",
+          "writable": true
+        },
+        {
+          "name": "referrer_treasury_for_reward",
+          "writable": true
+        },
+        {
+          "name": "buddy_profile"
+        },
+        {
+          "name": "buddy"
+        },
+        {
+          "name": "buddy_treasury",
+          "writable": true
+        },
+        {
+          "name": "member",
+          "writable": true
+        },
+        {
+          "name": "referrer_token_account",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "volume",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "init_buddy_profile_admin",
+      "discriminator": [
+        152,
+        111,
+        188,
+        6,
+        211,
+        58,
+        1,
+        28
+      ],
+      "accounts": [
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "rent"
+        },
+        {
+          "name": "super_admin"
+        },
+        {
+          "name": "instruction_sysvar_account"
+        },
+        {
+          "name": "authority"
+        },
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "referrer_shared_treasury",
+          "optional": true
+        },
+        {
+          "name": "buddy",
+          "writable": true
+        },
+        {
+          "name": "buddy_name",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "init_member_admin",
+      "discriminator": [
+        75,
+        88,
+        234,
+        159,
+        90,
+        144,
+        104,
+        49
+      ],
+      "accounts": [
+        {
+          "name": "associated_token_program"
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "rent"
+        },
+        {
+          "name": "super_admin"
+        },
+        {
+          "name": "authority"
+        },
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "organization"
+        },
+        {
+          "name": "mint",
+          "optional": true
+        },
+        {
+          "name": "buddy_profile"
+        },
+        {
+          "name": "buddy"
+        },
+        {
+          "name": "global_referrer_treasury",
+          "optional": true
+        },
+        {
+          "name": "owner_treasury"
+        },
+        {
+          "name": "referrer_treasury",
+          "optional": true
+        },
+        {
+          "name": "member",
+          "writable": true
+        },
+        {
+          "name": "owner_treasury_token_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "referrer_treasury_token_account",
+          "writable": true,
+          "optional": true
+        }
+      ],
+      "args": [
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "validate_referrer",
+      "discriminator": [
+        165,
+        30,
+        37,
+        202,
+        92,
+        169,
+        0,
+        103
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "authority"
+        },
+        {
+          "name": "buddy_profile"
+        },
+        {
+          "name": "buddy"
+        },
+        {
+          "name": "buddy_treasury",
+          "writable": true
+        },
+        {
+          "name": "member"
+        },
+        {
+          "name": "referrer_member",
+          "optional": true
+        },
+        {
+          "name": "referrer_treasury",
+          "optional": true
+        },
+        {
+          "name": "referrer_treasury_for_reward",
+          "optional": true
+        },
+        {
+          "name": "mint",
+          "optional": true
+        },
+        {
+          "name": "referrer_token_account",
+          "optional": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "update_master_organization",
+      "discriminator": [
+        142,
+        103,
+        142,
+        10,
+        230,
+        172,
+        166,
+        251
+      ],
+      "accounts": [
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "super_admin"
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "master_organization",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "share_kept_in_bps",
+          "type": "u16"
+        }
+      ]
+    },
+    {
+      "name": "transfer_buddy_authority",
+      "discriminator": [
+        221,
+        79,
+        158,
+        186,
+        126,
+        220,
+        93,
+        180
+      ],
+      "accounts": [
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "super_admin"
+        },
+        {
+          "name": "authority",
+          "signer": true
+        },
+        {
+          "name": "new_authority"
+        },
+        {
+          "name": "buddy",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "init_super_admin",
+      "discriminator": [
+        220,
+        119,
+        219,
+        118,
+        38,
+        208,
+        238,
+        23
+      ],
+      "accounts": [
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "rent"
+        },
+        {
+          "name": "first_authorized_authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "second_authorized_authority",
+          "signer": true
+        },
+        {
+          "name": "super_admin",
+          "writable": true,
+          "signer": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "update_super_admin",
+      "discriminator": [
+        17,
+        235,
+        69,
+        101,
+        141,
+        150,
+        237,
+        220
+      ],
+      "accounts": [
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "rent"
+        },
+        {
+          "name": "first_authorized_authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "second_authorized_authority",
+          "signer": true
+        },
+        {
+          "name": "new_authority",
+          "signer": true
+        },
+        {
+          "name": "super_admin",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "set_version",
+      "discriminator": [
+        55,
+        215,
+        31,
+        188,
+        126,
+        166,
+        55,
+        53
+      ],
+      "accounts": [
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "super_admin"
+        },
+        {
+          "name": "authority",
+          "signer": true
+        },
+        {
+          "name": "to_set_version",
+          "docs": [
+            "Buddy, Treasury, Organization, Member, Ambassador, AmbassadorClaimed"
+          ],
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "account_type",
+          "type": {
+            "defined": {
+              "name": "AccountTypeVersion"
+            }
+          }
+        },
+        {
+          "name": "version",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "transfer_organization_authority",
+      "discriminator": [
+        63,
+        139,
+        42,
+        119,
+        77,
+        128,
+        98,
+        50
+      ],
+      "accounts": [
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "super_admin"
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "new_authority"
+        },
+        {
+          "name": "organization",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "update_organization",
+      "discriminator": [
+        42,
+        176,
+        73,
+        140,
+        85,
+        79,
+        50,
+        104
+      ],
+      "accounts": [
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "super_admin"
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "organization",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "configuration_name",
+          "type": {
+            "defined": {
+              "name": "OrganizationConfigurationNames"
+            }
+          }
+        },
+        {
+          "name": "configuration_value",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "update_ambassador",
+      "discriminator": [
+        60,
+        232,
+        84,
+        20,
+        186,
+        234,
+        73,
+        30
+      ],
+      "accounts": [
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "super_admin"
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "master_organization",
+          "writable": true
+        },
+        {
+          "name": "organization",
+          "writable": true
+        },
+        {
+          "name": "ambassador"
+        }
+      ],
+      "args": [
+        {
+          "name": "ambassador_share_kept_in_bps",
+          "type": "u16"
+        }
+      ]
+    },
+    {
+      "name": "fix_allow_multi_attribution",
+      "discriminator": [
+        73,
+        164,
+        254,
+        23,
+        86,
+        45,
+        225,
+        71
+      ],
+      "accounts": [
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "super_admin"
+        },
+        {
+          "name": "authority",
+          "signer": true
+        },
+        {
+          "name": "organization",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "is_enabled",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "fix_volume_required_for_reward",
+      "discriminator": [
+        248,
+        236,
+        145,
+        65,
+        13,
+        161,
+        226,
+        141
+      ],
+      "accounts": [
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "super_admin"
+        },
+        {
+          "name": "authority",
+          "signer": true
+        },
+        {
+          "name": "organization",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "volume_required_for_reward",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "fix_buddylink_buddy_treasuries",
+      "discriminator": [
+        9,
+        249,
+        46,
+        17,
+        157,
+        135,
+        133,
+        121
+      ],
+      "accounts": [
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "super_admin"
+        },
+        {
+          "name": "authority",
+          "signer": true
+        },
+        {
+          "name": "mint",
+          "optional": true
+        },
+        {
+          "name": "buddylink_buddy"
+        },
+        {
+          "name": "buddylink_buddy_treasury",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "transfer_reward_checked_testing",
+      "discriminator": [
+        54,
+        191,
+        34,
+        50,
+        239,
+        253,
+        213,
+        160
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "buddy_global_referrer_treasury",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "buddy_global_referrer_token_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "buddy",
+          "writable": true
+        },
+        {
+          "name": "referrer_treasury",
+          "writable": true
+        },
+        {
+          "name": "referrer_treasury_for_reward",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "optional": true
+        },
+        {
+          "name": "mint",
+          "optional": true
+        },
+        {
+          "name": "token_program",
+          "optional": true
+        },
+        {
+          "name": "referee_token_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "referrer_token_account",
+          "writable": true,
+          "optional": true
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "allow_multi_level",
+          "type": "bool"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "BLNftSigner",
+      "discriminator": [
+        183,
+        250,
+        141,
+        187,
+        141,
+        105,
+        61,
+        93
+      ]
+    },
+    {
+      "name": "SuperAdmin",
+      "discriminator": [
+        10,
+        254,
+        27,
+        111,
+        57,
+        58,
+        118,
+        146
+      ]
+    },
+    {
+      "name": "MasterOrganization",
+      "discriminator": [
+        76,
+        46,
+        9,
+        122,
+        160,
+        168,
+        16,
+        76
+      ]
+    },
+    {
+      "name": "Buddy",
+      "discriminator": [
+        31,
+        157,
+        214,
+        107,
+        159,
+        151,
+        93,
+        221
+      ]
+    },
+    {
+      "name": "Organization",
+      "discriminator": [
+        145,
+        38,
+        152,
+        251,
+        91,
+        57,
+        118,
+        160
+      ]
+    },
+    {
+      "name": "Ambassador",
+      "discriminator": [
+        81,
+        227,
+        69,
+        28,
+        20,
+        7,
+        253,
+        66
+      ]
+    },
+    {
+      "name": "AmbassadorClaimed",
+      "discriminator": [
+        125,
+        129,
+        182,
+        212,
+        29,
+        235,
+        206,
+        72
+      ]
+    },
+    {
+      "name": "Member",
+      "discriminator": [
+        54,
+        19,
+        162,
+        21,
+        29,
+        166,
+        17,
+        198
+      ]
+    },
+    {
+      "name": "MemberStatistics",
+      "discriminator": [
+        232,
+        32,
+        159,
+        99,
+        251,
+        114,
+        56,
+        193
+      ]
+    },
+    {
+      "name": "Treasury",
+      "discriminator": [
+        238,
+        239,
+        123,
+        238,
+        89,
+        1,
+        168,
+        253
+      ]
+    },
+    {
+      "name": "NameCheck",
+      "discriminator": [
+        206,
+        41,
+        109,
+        249,
+        91,
+        209,
+        190,
+        130
+      ]
+    },
+    {
+      "name": "MetadataNFTPaidBuddy",
+      "discriminator": [
+        190,
+        104,
+        47,
+        86,
+        155,
+        242,
+        236,
+        233
+      ]
+    },
+    {
+      "name": "MetadataNFTOrganization",
+      "discriminator": [
+        83,
+        218,
+        133,
+        147,
+        211,
+        143,
+        164,
+        166
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "NotSuperAdmin",
+      "msg": "Only super admin can do this action"
+    },
+    {
+      "code": 6001,
+      "name": "InvalidAuthorityProvided",
+      "msg": "Invalid authority provided"
+    },
+    {
+      "code": 6002,
+      "name": "InvalidUserToClaim",
+      "msg": "Invalid user to claim"
+    },
+    {
+      "code": 6003,
+      "name": "InvalidBump",
+      "msg": "Invalid bump"
+    },
+    {
+      "code": 6004,
+      "name": "InvalidMasterOrganizationPubkey",
+      "msg": "Invalid pub key for master organization"
+    },
+    {
+      "code": 6005,
+      "name": "InvalidMasterOrganizationSolReceiverPubkey",
+      "msg": "Invalid pub key for master organization receiver account"
+    },
+    {
+      "code": 6006,
+      "name": "InvalidBuddyType",
+      "msg": "Invalid buddy type"
+    },
+    {
+      "code": 6007,
+      "name": "NameReservedByPaidBuddy",
+      "msg": "Paid buddy with this name exists"
+    },
+    {
+      "code": 6008,
+      "name": "InvalidBPSProvided",
+      "msg": "Invalid BPS provided"
+    },
+    {
+      "code": 6009,
+      "name": "OrganizationHasNoAmbassador",
+      "msg": "Organization has no ambassador"
+    },
+    {
+      "code": 6010,
+      "name": "InvalidAmbassadorProvided",
+      "msg": "Invalid ambassador provided for organization"
+    },
+    {
+      "code": 6011,
+      "name": "InvalidCharacterInName",
+      "msg": "Only alphanumeric character are supported for the name (a-z and 0-9)"
+    },
+    {
+      "code": 6012,
+      "name": "WalletUniquenessEnforced",
+      "msg": "Wallet uniqueness enforced for this organization"
+    },
+    {
+      "code": 6013,
+      "name": "InvalidMint",
+      "msg": "Invalid mint provided"
+    },
+    {
+      "code": 6014,
+      "name": "MissingTokenAccountForMint",
+      "msg": "Missing token account for mint"
+    },
+    {
+      "code": 6015,
+      "name": "InvalidBuddyLinkUSDCAccount",
+      "msg": "Invalid USDC account for BuddyLink"
+    },
+    {
+      "code": 6016,
+      "name": "InvalidTokenAccountOwner",
+      "msg": "Invalid token account owner"
+    },
+    {
+      "code": 6017,
+      "name": "InvalidTokenSpecified",
+      "msg": "You need to specific SOL or SPL token"
+    },
+    {
+      "code": 6018,
+      "name": "NFTTokenNotBelongMint",
+      "msg": "NFT Token does not belong to NFT mint"
+    },
+    {
+      "code": 6019,
+      "name": "InvalidTokenAmount",
+      "msg": "Invalid token amount for burn"
+    },
+    {
+      "code": 6020,
+      "name": "InvalidProvidedName",
+      "msg": "Invalid name for burning NFT"
+    },
+    {
+      "code": 6021,
+      "name": "TreasuryNotOwnedByBuddy",
+      "msg": "Treasury not owned by buddy"
+    },
+    {
+      "code": 6022,
+      "name": "InvalidReferrerProvidedForBuddy",
+      "msg": "Invalid referral provided for buddy"
+    },
+    {
+      "code": 6023,
+      "name": "BuddyIsNotPartOfTheTreasuryOwners",
+      "msg": "Provided buddy not part of treasury owners"
+    },
+    {
+      "code": 6024,
+      "name": "BuddyIsFrozen",
+      "msg": "Buddy is frozen"
+    },
+    {
+      "code": 6025,
+      "name": "BuddyIsNotFrozen",
+      "msg": "Buddy is not frozen"
+    },
+    {
+      "code": 6026,
+      "name": "OwnersMismatched",
+      "msg": "Owner's don't match"
+    },
+    {
+      "code": 6027,
+      "name": "DuplicatedOwner",
+      "msg": "Duplicated owners"
+    },
+    {
+      "code": 6028,
+      "name": "InvalidNumberOfSharesSpecified",
+      "msg": "Invalid number of shares specified"
+    },
+    {
+      "code": 6029,
+      "name": "InvalidReferrerTreasury",
+      "msg": "Invalid referrer treasury provided"
+    },
+    {
+      "code": 6030,
+      "name": "InvalidClaimAmount",
+      "msg": "Invalid amount to claim"
+    },
+    {
+      "code": 6031,
+      "name": "InvalidPaidBuddyToBurn",
+      "msg": "Invalid paid buddy provided for metadata"
+    },
+    {
+      "code": 6032,
+      "name": "NFTMetadataNotBelongMint",
+      "msg": "Invalid mint provided for metadata"
+    },
+    {
+      "code": 6033,
+      "name": "InvalidPaidBuddyName",
+      "msg": "Invalid paid buddy name provided for metadata"
+    },
+    {
+      "code": 6034,
+      "name": "MissingGlobalReferrerAccount",
+      "msg": "Missing global referrer account"
+    },
+    {
+      "code": 6035,
+      "name": "InvalidCollectionProvided",
+      "msg": "Invalid Collection Provided"
+    },
+    {
+      "code": 6036,
+      "name": "InvalidMetadataProvided",
+      "msg": "Invalid Metadata Provided"
+    },
+    {
+      "code": 6037,
+      "name": "CantReferYourself",
+      "msg": "User cannot refer himself"
+    },
+    {
+      "code": 6038,
+      "name": "CantCreateMemberWithReferrer",
+      "msg": "Can't create a member with a referrer if you don't own the buddy"
+    },
+    {
+      "code": 6039,
+      "name": "InvalidMemberForReferrer",
+      "msg": "Invalid member account provided for referrer"
+    },
+    {
+      "code": 6040,
+      "name": "InvalidAccountVersion",
+      "msg": "Invalid version"
+    },
+    {
+      "code": 6041,
+      "name": "NotAuthorizedAdmin",
+      "msg": "Only authorized admin can do this action"
+    },
+    {
+      "code": 6042,
+      "name": "SameAdmins",
+      "msg": "Authorized admins need to be different."
+    },
+    {
+      "code": 6043,
+      "name": "DisabledMultiAttribution",
+      "msg": "Organization does not support multi attribution."
+    },
+    {
+      "code": 6044,
+      "name": "UnauthorizedProgramSigner",
+      "msg": "Unauthorized program signer."
+    },
+    {
+      "code": 6045,
+      "name": "BuddyShouldBeSoleOwner",
+      "msg": "Buddy needs to be sole owner of treasury."
+    },
+    {
+      "code": 6046,
+      "name": "NotEnoughVolumeToClaim",
+      "msg": "Not enough volume to claim that amount."
+    },
+    {
+      "code": 6047,
+      "name": "MemberNotOwnedByTreasury",
+      "msg": "Member is not owned by treasury."
+    },
+    {
+      "code": 6048,
+      "name": "InvalidOrganization",
+      "msg": "Invalid organization."
+    }
+  ],
+  "types": [
+    {
+      "name": "BuddyGlobalReferrer",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "referrer_treasury_owner_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "referrer_referrer_type",
+            "type": {
+              "defined": {
+                "name": "ReferrerType"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "RewardReceived",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TreasuryAmounts",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "claimed",
+            "type": "u64"
+          },
+          {
+            "name": "frozen",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TreasuryOwner",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner_pda",
+            "type": "pubkey"
+          },
+          {
+            "name": "share",
+            "type": "u16"
+          },
+          {
+            "name": "with_multi_level",
+            "type": {
+              "defined": {
+                "name": "TreasuryAmounts"
+              }
+            }
+          },
+          {
+            "name": "no_multi_level",
+            "type": {
+              "defined": {
+                "name": "TreasuryAmounts"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "AccountTypeVersion",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Buddy"
+          },
+          {
+            "name": "Treasury"
+          },
+          {
+            "name": "Organization"
+          },
+          {
+            "name": "Member"
+          },
+          {
+            "name": "Ambassador"
+          },
+          {
+            "name": "AmbassadorClaimed"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AccountVersion",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Initial"
+          },
+          {
+            "name": "Test"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BuddyType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Profile"
+          },
+          {
+            "name": "Paid"
+          },
+          {
+            "name": "Saga"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OrganizationConfigurationNames",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "MainTokenMint"
+          },
+          {
+            "name": "EnforceWalletUniqueness"
+          },
+          {
+            "name": "AllowMultiLevel"
+          },
+          {
+            "name": "AllowMultiAttribution"
+          },
+          {
+            "name": "VolumeRequiredForReward"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ReferrerType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Buddylink"
+          },
+          {
+            "name": "Organization"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BLNftSigner",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SuperAdmin",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MasterOrganization",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "share_kept_in_bps",
+            "type": "u16"
+          },
+          {
+            "name": "ambassador_share_kept_in_bps",
+            "type": "u16"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Buddy",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "buddy_type",
+            "type": {
+              "defined": {
+                "name": "BuddyType"
+              }
+            }
+          },
+          {
+            "name": "date_created",
+            "type": "i64"
+          },
+          {
+            "name": "is_frozen",
+            "type": "bool"
+          },
+          {
+            "name": "referrer_treasury_pda",
+            "type": "pubkey"
+          },
+          {
+            "name": "referrer_type",
+            "type": {
+              "defined": {
+                "name": "ReferrerType"
+              }
+            }
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "padding",
+            "type": "bytes"
+          },
+          {
+            "name": "version",
+            "type": {
+              "defined": {
+                "name": "AccountVersion"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Organization",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "date_created",
+            "type": "i64"
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "padding",
+            "type": "bytes"
+          },
+          {
+            "name": "main_token_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "enforce_wallet_uniqueness",
+            "type": "bool"
+          },
+          {
+            "name": "allow_multi_level",
+            "type": "bool"
+          },
+          {
+            "name": "ambassador",
+            "type": "pubkey"
+          },
+          {
+            "name": "ambassador_share_kept_in_bps",
+            "type": "u16"
+          },
+          {
+            "name": "version",
+            "type": {
+              "defined": {
+                "name": "AccountVersion"
+              }
+            }
+          },
+          {
+            "name": "allow_multi_attribution",
+            "type": "bool"
+          },
+          {
+            "name": "volume_required_for_rewards",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Ambassador",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "padding",
+            "type": "bytes"
+          },
+          {
+            "name": "version",
+            "type": {
+              "defined": {
+                "name": "AccountVersion"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "AmbassadorClaimed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "total_claimed",
+            "type": "u128"
+          },
+          {
+            "name": "version",
+            "type": {
+              "defined": {
+                "name": "AccountVersion"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Member",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "referrer",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "global_referrer_of_buddy",
+            "type": {
+              "defined": {
+                "name": "BuddyGlobalReferrer"
+              }
+            }
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "padding_name",
+            "type": "bytes"
+          },
+          {
+            "name": "organization",
+            "type": "string"
+          },
+          {
+            "name": "padding_organization",
+            "type": "bytes"
+          },
+          {
+            "name": "created",
+            "type": "i64"
+          },
+          {
+            "name": "rewards_received",
+            "type": {
+              "array": [
+                {
+                  "defined": {
+                    "name": "RewardReceived"
+                  }
+                },
+                5
+              ]
+            }
+          },
+          {
+            "name": "number_rewards_tracked",
+            "type": "u8"
+          },
+          {
+            "name": "version",
+            "type": {
+              "defined": {
+                "name": "AccountVersion"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "MemberStatistics",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "member",
+            "type": "pubkey"
+          },
+          {
+            "name": "version",
+            "type": {
+              "defined": {
+                "name": "AccountVersion"
+              }
+            }
+          },
+          {
+            "name": "total_referrer_volume",
+            "type": "u64"
+          },
+          {
+            "name": "number_of_claimed_rewards",
+            "type": "u64"
+          },
+          {
+            "name": "number_of_claimed_rewards_in_volume",
+            "docs": [
+              "In case the rate of referrer volume changes, everytime a user claims, we'll calculate how much of the total referrer volume was \"used\" to claim"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "last_claimed",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Treasury",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "amount_no_multi_level",
+            "type": "u64"
+          },
+          {
+            "name": "total_bps",
+            "type": "u16"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "owners",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "TreasuryOwner"
+                }
+              }
+            }
+          },
+          {
+            "name": "owners_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "version",
+            "type": {
+              "defined": {
+                "name": "AccountVersion"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "NameCheck",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MetadataNFTPaidBuddy",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "paid_buddy_pda",
+            "type": "pubkey"
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "padding",
+            "type": "bytes"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MetadataNFTOrganization",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "padding",
+            "type": "bytes"
+          }
+        ]
+      }
+    }
+  ]
+}
