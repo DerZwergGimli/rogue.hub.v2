@@ -27,6 +27,8 @@ serde_json = "1.0.140"
 chrono = "0.4.41"
 borsh = "0.10.3"
 borsh-derive = "0.10.3"
+rust_decimal = { version = "1.37.1", features = ["macros"] }
+
 
 
 db = { path = "database" }

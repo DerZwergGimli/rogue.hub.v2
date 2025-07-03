@@ -1,3 +1,4 @@
+use rust_decimal::Decimal;
 use solana_sdk::pubkey::Pubkey;
 use solana_transaction_status::{UiInstruction, UiTransactionStatusMeta};
 use std::str::FromStr;
@@ -29,4 +30,10 @@ pub fn processor_inner(
         .clone()
         .unwrap()
         .instructions
+}
+
+pub fn convert_to_decimal(amount: u64, decimals: u8) -> Decimal {
+    let scale = Decimal::new(1, decimals.into());
+    let decimal = Decimal::from(amount) * scale;
+    return decimal;
 }
