@@ -22,7 +22,7 @@ pub async fn get_all_indexers(pool: &DbPool) -> Result<Vec<Indexer>> {
         r#"
         SELECT id, name, program_id, start_signature, before_signature, 
                start_block, before_block, finished
-        FROM indexer
+        FROM indexer.indexer
         ORDER BY id
         "#,
     )
@@ -49,7 +49,7 @@ pub async fn get_indexer_by_id(pool: &DbPool, id: i32) -> Result<Option<Indexer>
         r#"
         SELECT id, name, program_id, start_signature, before_signature, 
                start_block, before_block, finished
-        FROM indexer
+        FROM indexer.indexer
         WHERE id = $1
         "#,
     )
@@ -80,7 +80,7 @@ pub async fn get_indexers_by_program_id(
         r#"
         SELECT id, name, program_id, start_signature, before_signature, 
                start_block, before_block, finished
-        FROM indexer
+        FROM indexer.indexer
         WHERE program_id = $1
         ORDER BY id
         "#,
@@ -109,7 +109,7 @@ pub async fn get_indexers_by_name(pool: &DbPool, name: &str) -> Result<Vec<Index
         r#"
         SELECT id, name, program_id, start_signature, before_signature, 
                start_block, before_block, finished
-        FROM indexer
+        FROM indexer.indexer
         WHERE name = $1
         ORDER BY id
         "#,
@@ -136,7 +136,7 @@ pub async fn get_indexers_by_name(pool: &DbPool, name: &str) -> Result<Vec<Index
 pub async fn create_indexer(pool: &DbPool, new_indexer: &NewIndexer) -> Result<Indexer> {
     let indexer = sqlx::query_as::<_, Indexer>(
         r#"
-        INSERT INTO indexer (
+        INSERT INTO indexer.indexer (
             id, name, program_id, start_signature, before_signature, 
             start_block, before_block, finished
         )
@@ -177,9 +177,9 @@ pub async fn create_indexer(pool: &DbPool, new_indexer: &NewIndexer) -> Result<I
 pub async fn update_indexer(pool: &DbPool, id: i32, update: &UpdateIndexer) -> Result<Indexer> {
     let indexer = sqlx::query_as::<_, Indexer>(
         r#"
-        UPDATE indexer
+        UPDATE indexer.indexer
         SET 
-            
+
             before_signature = $1,
             before_block = $2,
             finished = $3
@@ -214,7 +214,7 @@ pub async fn update_indexer(pool: &DbPool, id: i32, update: &UpdateIndexer) -> R
 /// # Errors
 /// Returns an error if the query fails
 pub async fn delete_indexer(pool: &DbPool, id: i32) -> Result<bool> {
-    let result = sqlx::query("DELETE FROM indexer WHERE id = $1")
+    let result = sqlx::query("DELETE FROM indexer.indexer WHERE id = $1")
         .bind(id)
         .execute(pool)
         .await

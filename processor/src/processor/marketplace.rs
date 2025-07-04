@@ -1,10 +1,13 @@
 use crate::convert::convert_to_decimal;
+use db::DbPool;
 use decoder::staratlas::marketplace::{DecodedInstruction, ProcessExchange};
 use rust_decimal::Decimal;
 use solana_sdk::pubkey::Pubkey;
 use solana_transaction_status::{UiInstruction, UiParsedInstruction};
 
-pub struct MarketplaceProcessor {}
+pub struct MarketplaceProcessor {
+    pub pool: DbPool,
+}
 
 #[derive(Debug, Clone)]
 pub struct MarketplaceExchangeInner {
@@ -27,12 +30,17 @@ pub struct MarketplaceExchangeInnerParsed {
 }
 
 impl MarketplaceProcessor {
-    pub fn process(
+    pub fn new(pool: DbPool) -> Self {
+        MarketplaceProcessor { pool }
+    }
+
+    pub async fn process(
+        &self,
         signature: String,
         data: Vec<u8>,
         accounts: Vec<Pubkey>,
         inner_instructions: Vec<UiInstruction>,
-    ) {
+    ) -> anyhow::Result<()> {
         match decoder::staratlas::marketplace::decode_instruction(data.as_slice()) {
             Some(DecodedInstruction::ProcessExchange(exchange)) => {
                 let accounts_map = ProcessExchange::map_accounts(accounts.as_slice());
@@ -44,12 +52,14 @@ impl MarketplaceProcessor {
                     accounts_map["currency_mint"].to_string(),
                 );
                 println!("inner_data={:?}", inner_data);
+
+                Ok(())
             }
 
             Some(DecodedInstruction::ProcessInitializeBuy(_)) => {}
             Some(DecodedInstruction::ProcessInitializeSell(_)) => {}
             Some(DecodedInstruction::ProcessCancel) => {}
-
+            Some(DecodedInstruction::InitializeOpenOrdersCounter) => {}
             _ => panic!(
                 "Unhandled marketplace instruction [{}] {:?}",
                 signature,
@@ -311,7 +321,15 @@ impl MarketplaceProcessor {
                     "BUY" => {
                         buddy_amount = convert_to_decimal(
                             mapped_inner[1].clone().amount.unwrap(),
-                            mapped_inner[1].clone().decimals.unwrap(),
+                            mapped_inner
+                                .iter()
+                                .find(|inner| {
+                                    inner.source == mapped_inner[1].source
+                                        && inner.decimals.is_some()
+                                })
+                                .unwrap()
+                                .decimals
+                                .unwrap(),
                         );
                         fee_amount = convert_to_decimal(
                             mapped_inner[2].clone().amount.unwrap(),
@@ -360,7 +378,53 @@ impl MarketplaceProcessor {
                 }
             }
 
-            _ => panic!("Unhandled inner instructions"),
+            [
+                "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+                "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            ] => {
+                side = Self::get_side(currency_mint, &mut mapped_inner, 1);
+                match side.as_str() {
+                    "BUY" => {
+                        fee_amount = convert_to_decimal(
+                            mapped_inner[0].clone().amount.unwrap(),
+                            mapped_inner[0].clone().decimals.unwrap(),
+                        );
+
+                        asset_amount = convert_to_decimal(
+                            mapped_inner[1].clone().amount.unwrap(),
+                            mapped_inner[1].clone().decimals.unwrap(),
+                        );
+
+                        currency_amount = convert_to_decimal(
+                            mapped_inner[2].clone().amount.unwrap(),
+                            mapped_inner[2].clone().decimals.unwrap(),
+                        );
+                    }
+                    "SELL" => {
+                        fee_amount = convert_to_decimal(
+                            mapped_inner[0].clone().amount.unwrap(),
+                            mapped_inner[0].clone().decimals.unwrap(),
+                        );
+
+                        currency_amount = convert_to_decimal(
+                            mapped_inner[1].clone().amount.unwrap(),
+                            mapped_inner[1].clone().decimals.unwrap(),
+                        );
+
+                        asset_amount = convert_to_decimal(
+                            mapped_inner[2].clone().amount.unwrap(),
+                            mapped_inner[2].clone().decimals.unwrap(),
+                        );
+                    }
+                    _ => panic!("Unhandled side"),
+                }
+            }
+
+            _ => panic!(
+                "Unhandled inner instructions [{}]",
+                mapped_inner_refs.join(", ")
+            ),
         };
 
         let price = (fee_amount + currency_amount + buddy_amount)

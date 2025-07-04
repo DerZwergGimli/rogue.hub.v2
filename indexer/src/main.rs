@@ -1,7 +1,7 @@
 use crate::args::Args;
 use chrono::DateTime;
 use clap::Parser;
-use db::{NewSignature, UpdateIndexer};
+use db::{NewProgramSignature, NewSignature, UpdateIndexer};
 use solana_client::rpc_client::{GetConfirmedSignaturesForAddress2Config, RpcClient};
 use solana_commitment_config::CommitmentConfig;
 use solana_sdk::pubkey::Pubkey;
@@ -19,7 +19,7 @@ const SLEEP: Duration = Duration::from_secs(5);
 pub async fn main() -> anyhow::Result<()> {
     dotenv::dotenv().ok();
 
-    let args = Args::parse();
+    let _args = Args::parse();
 
     env_logger::Builder::new()
         .filter(None, log::LevelFilter::Info)
@@ -56,14 +56,24 @@ pub async fn main() -> anyhow::Result<()> {
             client.get_signatures_for_address_with_config(&program_id, signatures_for_config)?;
 
         for signature in signatures.clone() {
-            let new_signature = NewSignature {
-                program_id: program_id.to_string(),
-                signature: signature.signature.to_string(),
-                slot: signature.slot as i64,
-                timestamp: DateTime::from_timestamp(signature.block_time.unwrap(), 0).unwrap(),
-            };
-
-            db::create_signature(&pool, &new_signature).await?;
+            db::create_signature(
+                &pool,
+                &NewSignature {
+                    signature: signature.signature.to_string(),
+                    slot: signature.slot as i64,
+                    timestamp: DateTime::from_timestamp(signature.block_time.unwrap(), 0).unwrap(),
+                },
+            )
+            .await?;
+            db::create_program_signature(
+                &pool,
+                &NewProgramSignature {
+                    program_id: program_id.to_string(),
+                    signature: signature.signature.to_string(),
+                    processed: false,
+                },
+            )
+            .await?;
 
             let new_indexer = UpdateIndexer {
                 before_signature: Some(signature.signature.clone()),
@@ -73,13 +83,17 @@ pub async fn main() -> anyhow::Result<()> {
             db::update_indexer(&pool, db_indexer.id, &new_indexer).await?;
         }
 
-        if (signatures.len() == 0) {
-            log::info!("[{}] no new signatures for {}", db_indexer.name, program_id);
+        if signatures.len() == 0 {
+            log::info!(
+                "[{:?}] no new signatures for {}",
+                db_indexer.name,
+                program_id
+            );
             return Ok(());
         }
 
         log::info!(
-            "[{}] added {} signatures for {}",
+            "[{:?}] added {} signatures for {}",
             db_indexer.name,
             signatures.len(),
             program_id
@@ -87,6 +101,4 @@ pub async fn main() -> anyhow::Result<()> {
 
         sleep(SLEEP).await;
     }
-
-    Ok(())
 }

@@ -4,20 +4,20 @@ use sqlx::FromRow;
 
 use crate::types::{PublicKeyType, SignatureType};
 
-/// Represents an indexer record in the database
+/// Represents an indexer record in the indexer.indexer table
 #[derive(Debug, FromRow, Clone)]
 pub struct Indexer {
     /// Unique identifier for the indexer
     pub id: i32,
 
     /// Name of the indexer
-    pub name: String,
+    pub name: Option<String>,
 
     /// Program ID being indexed
     pub program_id: PublicKeyType,
 
     /// Signature to start indexing from
-    pub start_signature: SignatureType,
+    pub start_signature: Option<SignatureType>,
 
     /// Signature to stop indexing at (if any)
     pub before_signature: Option<SignatureType>,
@@ -32,20 +32,20 @@ pub struct Indexer {
     pub finished: Option<bool>,
 }
 
-/// Parameters for creating a new indexer
+/// Parameters for creating a new indexer in the indexer.indexer table
 #[derive(Debug)]
 pub struct NewIndexer {
     /// ID of the indexer
     pub id: i32,
 
     /// Name of the indexer
-    pub name: String,
+    pub name: Option<String>,
 
     /// Program ID being indexed
     pub program_id: PublicKeyType,
 
     /// Signature to start indexing from
-    pub start_signature: SignatureType,
+    pub start_signature: Option<SignatureType>,
 
     /// Signature to stop indexing at (if any)
     pub before_signature: Option<SignatureType>,
@@ -60,7 +60,7 @@ pub struct NewIndexer {
     pub finished: Option<bool>,
 }
 
-/// Parameters for updating an existing indexer
+/// Parameters for updating an existing indexer in the indexer.indexer table
 #[derive(Debug)]
 pub struct UpdateIndexer {
     /// Signature to stop indexing at (if any)
