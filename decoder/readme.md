@@ -1,1 +1,1 @@
-# Decoder
+# Decoder Library for rogue.hub.v2
