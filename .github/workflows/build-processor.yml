@@ -1,0 +1,34 @@
+name: Build Processor Docker Image
+
+on:
+  push:
+    branches: [ "master" ]
+    paths:
+      - 'processor/**'
+      - 'database/**'
+      - 'decoder/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: processor/Dockerfile
+          push: true
+          tags: derzwerggimli/rogue.hub.v2.processor:latest
