@@ -1,4 +1,4 @@
-name: Build Processor Docker Image
+name: Build Decoder Docker Image
 
 on:
   push:
@@ -29,6 +29,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: processor/Dockerfile
+          file: decoder/Dockerfile
           push: true
           tags: derzwerggimli/rogue.hub.v2.processor:latest
