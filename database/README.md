@@ -1,6 +1,7 @@
 # Database Library for rogue.hub.v2
 
-A well-structured Rust library for interacting with the PostgreSQL database used by the rogue.hub.v2 project, with a focus on indexer and signature data retrieval.
+A well-structured Rust library for interacting with the PostgreSQL database used by the rogue.hub.v2 project, with a
+focus on indexer and signature data retrieval.
 
 ## Features
 
@@ -168,8 +169,8 @@ async fn main() -> anyhow::Result<()> {
     let one_hour_later_offset = OffsetDateTime::from(one_hour_later);
 
     let date_range_signatures = get_signatures_by_timestamp_range(
-        &pool, 
-        one_hour_ago_offset, 
+        &pool,
+        one_hour_ago_offset,
         one_hour_later_offset
     ).await?;
 
@@ -229,7 +230,8 @@ async fn main() -> anyhow::Result<()> {
 
 ## Configuration
 
-The library uses the `DATABASE_URL` environment variable to connect to the database. This can be set in a `.env` file in the project root or in the environment.
+The library uses the `DATABASE_URL` environment variable to connect to the database. This can be set in a `.env` file in
+the project root or in the environment.
 
 Example `.env` file:
 
