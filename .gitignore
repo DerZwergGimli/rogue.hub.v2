@@ -2,4 +2,4 @@ data
 
 target
 **/.env
-docker-compose.production.yaml
+docker-compose.*.yaml
