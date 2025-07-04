@@ -48,9 +48,12 @@ async fn main() -> Result<()> {
     let marketplace_api = MarketplaceApi::new(db_pool);
 
     // Create OpenAPI service
-    let api_service =
-        OpenApiService::new((indexer_api, marketplace_api), "Star Atlas Data API", "1.0")
-            .server(format!("http://{}:{}", host, port));
+    let api_service = OpenApiService::new(
+        (indexer_api, marketplace_api),
+        "Rogue Data Hub API",
+        env!("CARGO_PKG_VERSION"),
+    )
+    .server(format!("http://{}:{}", host, port));
 
     // Get the OpenAPI specification
     let spec = api_service.spec();
@@ -61,9 +64,9 @@ async fn main() -> Result<()> {
 
     // Set up the routes
     let app = Route::new()
-        .nest("/api", api_service)
-        .nest("/swagger", ui)
-        .at("/api.json", spec_json)
+        .nest("/", api_service)
+        .nest("/doc", ui)
+        .at("/spec", poem::endpoint::make_sync(move |_| spec.clone()))
         .with(Cors::new());
 
     // Start the server
