@@ -137,13 +137,13 @@ pub async fn create_indexer(pool: &DbPool, new_indexer: &NewIndexer) -> Result<I
     let indexer = sqlx::query_as::<_, Indexer>(
         r#"
         INSERT INTO indexer.indexer (
-            id, name, direction, program_id, start_signature, before_signature, 
-            start_block, before_block, finished
+            id, name, direction, program_id, before_signature, until_signature, 
+            before_block, until_block, finished
         )
         VALUES (
             $1, $2, $3, $4, $5, $6, $7, $8, $9
         )
-        RETURNING id, name, direction, program_id, start_signature, before_signature, 
+        RETURNING id, name, direction, program_id, until_signature, before_signature, 
                   start_block, before_block, finished
         "#,
     )
@@ -151,7 +151,7 @@ pub async fn create_indexer(pool: &DbPool, new_indexer: &NewIndexer) -> Result<I
     .bind(&new_indexer.name)
     .bind(&new_indexer.direction)
     .bind(&new_indexer.program_id)
-    .bind(&new_indexer.start_signature)
+    .bind(&new_indexer.until_signature)
     .bind(&new_indexer.before_signature)
     .bind(new_indexer.start_block)
     .bind(new_indexer.before_block)
@@ -182,16 +182,18 @@ pub async fn update_indexer(pool: &DbPool, id: i32, update: &UpdateIndexer) -> R
         SET 
             direction = COALESCE($1, direction),
             before_signature = $2,
+            until_signature = $2,
             before_block = $3,
+            unitl_block = $3,
             finished = $4
         WHERE id = $5
-        RETURNING id, name, direction, program_id, start_signature, before_signature, 
+        RETURNING id, name, direction, program_id, until_signature, before_signature, 
                   start_block, before_block, finished
         "#,
     )
     .bind(&update.direction)
     .bind(&update.before_signature)
-    .bind(update.before_block)
+    .bind(update.until_block)
     .bind(update.finished)
     .bind(id)
     .fetch_one(pool)

@@ -1,7 +1,7 @@
 use crate::args::Args;
 use chrono::DateTime;
 use clap::Parser;
-use db::{NewProgramSignature, NewSignature, UpdateIndexer};
+use db::{Direction, NewProgramSignature, NewSignature, UpdateIndexer};
 use solana_client::rpc_client::{GetConfirmedSignaturesForAddress2Config, RpcClient};
 use solana_commitment_config::CommitmentConfig;
 use solana_sdk::pubkey::Pubkey;
@@ -42,10 +42,23 @@ pub async fn main() -> anyhow::Result<()> {
     loop {
         let db_indexer = db::get_indexer_by_id(&pool, indexer_id).await?.unwrap();
 
-        let before_signature = match db_indexer.before_signature {
-            None => None,
-            Some(signature) => Some(Signature::from_str(signature.as_str())?),
-        };
+        let mut before_signature = None;
+        let mut until_signature = None;
+
+        match db_indexer.direction {
+            Direction::Old => {
+                let before_signature = match db_indexer.before_signature {
+                    None => None,
+                    Some(signature) => Some(Signature::from_str(signature.as_str())?),
+                };
+            }
+            Direction::New => {
+                let until_signature = match db_indexer.u {
+                    None => None,
+                    Some(signature) => Some(Signature::from_str(signature.as_str())?),
+                };
+            }
+        }
 
         let signatures_for_config = GetConfirmedSignaturesForAddress2Config {
             before: before_signature,
@@ -78,9 +91,9 @@ pub async fn main() -> anyhow::Result<()> {
             .await?;
 
             let new_indexer = UpdateIndexer {
-                direction: None,
+                direction: None, // Using None to keep the existing direction
                 before_signature: Some(signature.signature.clone()),
-                before_block: Some(signature.slot as i64),
+                until_block: Some(signature.slot as i64),
                 finished: Some(false),
             };
             db::update_indexer(&pool, db_indexer.id, &new_indexer).await?;

@@ -2,7 +2,7 @@
 
 use sqlx::FromRow;
 
-use crate::types::{PublicKeyType, SignatureType};
+use crate::types::{Direction, PublicKeyType, SignatureType};
 
 /// Represents an indexer record in the indexer.indexer table
 #[derive(Debug, FromRow, Clone)]
@@ -13,23 +13,19 @@ pub struct Indexer {
     /// Name of the indexer
     pub name: Option<String>,
 
-    /// Direction of indexing (forward or backward)
-    pub direction: String,
+    /// Direction of indexing (OLD or NEW)
+    pub direction: Direction,
 
     /// Program ID being indexed
     pub program_id: PublicKeyType,
 
-    /// Signature to start indexing from
-    pub start_signature: Option<SignatureType>,
-
-    /// Signature to stop indexing at (if any)
     pub before_signature: Option<SignatureType>,
 
-    /// Block number to start indexing from
-    pub start_block: Option<i64>,
+    pub until_signature: Option<SignatureType>,
 
-    /// Block number to stop indexing at (if any)
     pub before_block: Option<i64>,
+
+    pub until_block: Option<i64>,
 
     /// Whether the indexing is finished
     pub finished: Option<bool>,
@@ -44,23 +40,19 @@ pub struct NewIndexer {
     /// Name of the indexer
     pub name: Option<String>,
 
-    /// Direction of indexing (forward or backward)
-    pub direction: String,
+    /// Direction of indexing (OLD or NEW)
+    pub direction: Direction,
 
     /// Program ID being indexed
     pub program_id: PublicKeyType,
 
-    /// Signature to start indexing from
-    pub start_signature: Option<SignatureType>,
-
-    /// Signature to stop indexing at (if any)
     pub before_signature: Option<SignatureType>,
 
-    /// Block number to start indexing from
-    pub start_block: Option<i64>,
+    pub until_signature: Option<SignatureType>,
 
-    /// Block number to stop indexing at (if any)
     pub before_block: Option<i64>,
+
+    pub until_block: Option<i64>,
 
     /// Whether the indexing is finished
     pub finished: Option<bool>,
@@ -69,15 +61,16 @@ pub struct NewIndexer {
 /// Parameters for updating an existing indexer in the indexer.indexer table
 #[derive(Debug)]
 pub struct UpdateIndexer {
-    /// Direction of indexing (forward or backward)
-    pub direction: Option<String>,
+    /// Direction of indexing (OLD or NEW)
+    pub direction: Option<Direction>,
 
-    /// Signature to stop indexing at (if any)
     pub before_signature: Option<SignatureType>,
 
-    /// Block number to stop indexing at (if any)
+    pub until_signature: Option<SignatureType>,
+
     pub before_block: Option<i64>,
 
-    /// Whether the indexing is finished
+    pub until_block: Option<i64>,
+
     pub finished: Option<bool>,
 }

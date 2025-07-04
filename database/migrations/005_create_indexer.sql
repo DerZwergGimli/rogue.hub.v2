@@ -20,16 +20,18 @@ CREATE TABLE IF NOT EXISTS indexer.program_signatures (
 );
 
 
+CREATE TYPE indexer.direction_type AS ENUM ('OLD', 'NEW');
+
 
 CREATE TABLE IF NOT EXISTS indexer.indexer (
     id SERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
-    direction VARCHAR(10) NOT NULL,
+    direction indexer.direction_type,
     program_id VARCHAR(75) REFERENCES indexer.programs(program_id) ON DELETE CASCADE,
     start_signature VARCHAR(100) REFERENCES indexer.signatures(signature) ON DELETE CASCADE,
     before_signature VARCHAR(100) REFERENCES indexer.signatures(signature) ON DELETE CASCADE,
     until_signature VARCHAR(100) REFERENCES indexer.signatures(signature) ON DELETE CASCADE,
-    start_block BIGINT,
     before_block BIGINT,
+    until_block BIGINT,
     finished BOOLEAN
 );

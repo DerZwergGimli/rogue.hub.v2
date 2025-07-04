@@ -57,7 +57,7 @@ async fn main() -> anyhow::Result<()> {
     let update = UpdateIndexer {
         name: Some("Updated Example Indexer".to_string()),
         before_signature: None,
-        before_block: Some(200),
+        until_block: Some(200),
         finished: Some(true),
     };
 
