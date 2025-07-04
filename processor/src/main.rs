@@ -31,6 +31,14 @@ pub async fn main() -> anyhow::Result<()> {
 
     let args = Args::parse();
 
+    let startup_delay = Duration::from_millis(
+        env::var("STARTUP_DELAY")
+            .unwrap_or_else(|_| "100".to_string())
+            .parse::<u64>()
+            .unwrap(),
+    );
+    sleep(startup_delay).await;
+
     env_logger::Builder::new()
         .filter(None, log::LevelFilter::Info)
         .init();

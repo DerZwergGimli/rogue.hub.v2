@@ -20,6 +20,13 @@ pub async fn main() -> anyhow::Result<()> {
     dotenv::dotenv().ok();
 
     let indexer_name = String::from(env::var("INDEXER_NAME").expect("INDEXER_NAME must be set"));
+    let startup_delay = Duration::from_millis(
+        env::var("STARTUP_DELAY")
+            .unwrap_or_else(|_| "100".to_string())
+            .parse::<u64>()
+            .unwrap(),
+    );
+    sleep(startup_delay).await;
 
     env_logger::Builder::new()
         .filter(None, log::LevelFilter::Info)
