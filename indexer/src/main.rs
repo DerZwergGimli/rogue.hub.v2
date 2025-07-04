@@ -153,7 +153,7 @@ pub async fn main() -> anyhow::Result<()> {
         if signatures.len() == 0 {
             log::info!(
                 "[{:?}] no new signatures for {}",
-                db_indexer.name,
+                db_indexer.name.clone().unwrap(),
                 program_id
             );
             if db_indexer.direction == Direction::Old {
@@ -163,7 +163,7 @@ pub async fn main() -> anyhow::Result<()> {
 
         log::info!(
             "[{:?}] added {} signatures for {}",
-            db_indexer.name,
+            db_indexer.name.unwrap(),
             signatures.len(),
             program_id
         );

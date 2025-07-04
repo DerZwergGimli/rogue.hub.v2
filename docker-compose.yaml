@@ -4,12 +4,101 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: database
-      POSTGRES_PASSWORD: localtest
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - ./data/timescale:/var/lib/postgresql/data/pgdata
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
     logging:
       driver: "json-file"
       options:
         max-size: "1m"
+
+  db-migrations:
+    image: derzwerggimli/rogue.hub.v2.migrations:latest
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+
+  api:
+    image: derzwerggimli/rogue.hub.v2.api:latest
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      API_PORT: 3000
+      RUST_LOG: info
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+      db-migrations:
+        condition: service_completed_successfully
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+
+  indexer_marketplace_new:
+    image: derzwerggimli/rogue.hub.v2.indexer:latest
+    environment:
+      STARTUP_DELAY: 0
+      RPC_URL: ${RPC_URL}
+      DATABASE_URL: ${DATABASE_URL}
+      INDEXER_NAME: marketplace_new
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+      db-migrations:
+        condition: service_completed_successfully
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+
+  indexer_marketplace_old:
+    image: derzwerggimli/rogue.hub.v2.indexer:latest
+    environment:
+      STARTUP_DELAY: 5000
+      RPC_URL: ${RPC_URL}
+      DATABASE_URL: ${DATABASE_URL}
+      INDEXER_NAME: marketplace_old
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+      db-migrations:
+        condition: service_completed_successfully
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+
+  processor_marketplace:
+    image: derzwerggimli/rogue.hub.v2.processor:latest
+    environment:
+      STARTUP_DELAY: 10000
+      RPC_URL: ${RPC_URL}
+      DATABASE_URL: ${DATABASE_URL}
+      PROGRAM_ID: traderDnaR5w6Tcoi3NFm53i48FTDNbGjBSZwWXDRrg
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+      db-migrations:
+        condition: service_completed_successfully
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+
+
