@@ -23,7 +23,7 @@ pub async fn get_all_exchanges(pool: &DbPool) -> Result<Vec<Exchange>> {
         r#"
         SELECT id, slot, signature, index, timestamp , side, buyer, seller, asset, pair, price, size, volume, fee, buddy
         FROM market.exchanges
-        ORDER BY timestamp DESC
+        ORDER BY slot DESC
         "#,
     )
     .fetch_all(pool)
@@ -77,7 +77,7 @@ pub async fn get_exchanges_by_buyer_id(pool: &DbPool, buyer_id: i32) -> Result<V
         SELECT id, slot, signature, index, timestamp , side, buyer, seller, asset, pair, price, size, volume, fee, buddy
         FROM market.exchanges
         WHERE buyer = $1
-        ORDER BY timestamp DESC
+        ORDER BY slot DESC
         "#,
     )
     .bind(buyer_id)
@@ -105,7 +105,7 @@ pub async fn get_exchanges_by_seller_id(pool: &DbPool, seller_id: i32) -> Result
         SELECT id, slot, signature, index, timestamp, side, buyer, seller, asset, pair, price, size, volume, fee, buddy
         FROM market.exchanges
         WHERE seller = $1
-        ORDER BY timestamp DESC
+        ORDER BY slot DESC
         "#,
     )
     .bind(seller_id)
@@ -133,7 +133,7 @@ pub async fn get_exchanges_by_asset_id(pool: &DbPool, asset_id: i32) -> Result<V
         SELECT id, slot, signature, index, timestamp, side, buyer, seller, asset, pair, price, size, volume, fee, buddy
         FROM market.exchanges
         WHERE asset = $1
-        ORDER BY timestamp DESC
+        ORDER BY slot DESC
         "#,
     )
     .bind(asset_id)
