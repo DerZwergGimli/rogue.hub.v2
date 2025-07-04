@@ -149,7 +149,9 @@ pub async fn main() -> anyhow::Result<()> {
                 db_indexer.name,
                 program_id
             );
-            return Ok(());
+            if db_indexer.direction == Direction::Old {
+                return Ok(());
+            }
         }
 
         log::info!(
