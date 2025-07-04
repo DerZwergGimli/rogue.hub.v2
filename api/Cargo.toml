@@ -1,0 +1,19 @@
+[package]
+name = "api"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+
+[dependencies]
+
+poem = "3"
+poem-openapi = { version = "5", features = ["swagger-ui"] }
+tokio = { version = "1.45.1", features = ["full"] }
+json_proc_macro = "0.5.1"
+log.workspace = true
+env_logger.workspace = true
+dotenv.workspace = true
+anyhow.workspace = true
+thiserror.workspace = true
+
+db.workspace = true
