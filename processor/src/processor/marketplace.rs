@@ -98,7 +98,7 @@ impl MarketplaceProcessor {
     ) -> MarketplaceExchangeInnerParsed {
         let mut mapped_inner = vec![];
         for (inner_idx, inner) in inner_instructions.clone().into_iter().enumerate() {
-            println!("[inner][{}] {:?}", inner_idx, inner);
+            //println!("[inner][{}] {:?}", inner_idx, inner);
             match inner {
                 UiInstruction::Parsed(ui_parsed_instruction) => match ui_parsed_instruction {
                     UiParsedInstruction::Parsed(parsed_instruction) => {
@@ -192,7 +192,7 @@ impl MarketplaceProcessor {
             }
         }
 
-        println!("mapped_inner={:?}", mapped_inner);
+        //println!("mapped_inner={:?}", mapped_inner);
 
         let mapped_inner_refs: Vec<&str> =
             mapped_inner.iter().map(|s| s.program_id.as_str()).collect();
