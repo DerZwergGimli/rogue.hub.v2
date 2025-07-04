@@ -78,6 +78,7 @@ pub async fn main() -> anyhow::Result<()> {
             .await?;
 
             let new_indexer = UpdateIndexer {
+                direction: None,
                 before_signature: Some(signature.signature.clone()),
                 before_block: Some(signature.slot as i64),
                 finished: Some(false),

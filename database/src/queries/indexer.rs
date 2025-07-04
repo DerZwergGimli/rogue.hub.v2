@@ -20,7 +20,7 @@ use crate::types::PublicKeyType;
 pub async fn get_all_indexers(pool: &DbPool) -> Result<Vec<Indexer>> {
     let indexers = sqlx::query_as::<_, Indexer>(
         r#"
-        SELECT id, name, program_id, start_signature, before_signature, 
+        SELECT id, name, direction, program_id, start_signature, before_signature, 
                start_block, before_block, finished
         FROM indexer.indexer
         ORDER BY id
@@ -47,7 +47,7 @@ pub async fn get_all_indexers(pool: &DbPool) -> Result<Vec<Indexer>> {
 pub async fn get_indexer_by_id(pool: &DbPool, id: i32) -> Result<Option<Indexer>> {
     let indexer = sqlx::query_as::<_, Indexer>(
         r#"
-        SELECT id, name, program_id, start_signature, before_signature, 
+        SELECT id, name, direction, program_id, start_signature, before_signature, 
                start_block, before_block, finished
         FROM indexer.indexer
         WHERE id = $1
@@ -78,7 +78,7 @@ pub async fn get_indexers_by_program_id(
 ) -> Result<Vec<Indexer>> {
     let indexers = sqlx::query_as::<_, Indexer>(
         r#"
-        SELECT id, name, program_id, start_signature, before_signature, 
+        SELECT id, name, direction, program_id, start_signature, before_signature, 
                start_block, before_block, finished
         FROM indexer.indexer
         WHERE program_id = $1
@@ -107,7 +107,7 @@ pub async fn get_indexers_by_program_id(
 pub async fn get_indexers_by_name(pool: &DbPool, name: &str) -> Result<Vec<Indexer>> {
     let indexers = sqlx::query_as::<_, Indexer>(
         r#"
-        SELECT id, name, program_id, start_signature, before_signature, 
+        SELECT id, name, direction, program_id, start_signature, before_signature, 
                start_block, before_block, finished
         FROM indexer.indexer
         WHERE name = $1
@@ -137,18 +137,19 @@ pub async fn create_indexer(pool: &DbPool, new_indexer: &NewIndexer) -> Result<I
     let indexer = sqlx::query_as::<_, Indexer>(
         r#"
         INSERT INTO indexer.indexer (
-            id, name, program_id, start_signature, before_signature, 
+            id, name, direction, program_id, start_signature, before_signature, 
             start_block, before_block, finished
         )
         VALUES (
-            $1, $2, $3, $4, $5, $6, $7, $8
+            $1, $2, $3, $4, $5, $6, $7, $8, $9
         )
-        RETURNING id, name, program_id, start_signature, before_signature, 
+        RETURNING id, name, direction, program_id, start_signature, before_signature, 
                   start_block, before_block, finished
         "#,
     )
     .bind(new_indexer.id)
     .bind(&new_indexer.name)
+    .bind(&new_indexer.direction)
     .bind(&new_indexer.program_id)
     .bind(&new_indexer.start_signature)
     .bind(&new_indexer.before_signature)
@@ -179,15 +180,16 @@ pub async fn update_indexer(pool: &DbPool, id: i32, update: &UpdateIndexer) -> R
         r#"
         UPDATE indexer.indexer
         SET 
-
-            before_signature = $1,
-            before_block = $2,
-            finished = $3
-        WHERE id = $4
-        RETURNING id, name, program_id, start_signature, before_signature, 
+            direction = COALESCE($1, direction),
+            before_signature = $2,
+            before_block = $3,
+            finished = $4
+        WHERE id = $5
+        RETURNING id, name, direction, program_id, start_signature, before_signature, 
                   start_block, before_block, finished
         "#,
     )
+    .bind(&update.direction)
     .bind(&update.before_signature)
     .bind(update.before_block)
     .bind(update.finished)

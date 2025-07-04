@@ -13,6 +13,9 @@ pub struct Indexer {
     /// Name of the indexer
     pub name: Option<String>,
 
+    /// Direction of indexing (forward or backward)
+    pub direction: String,
+
     /// Program ID being indexed
     pub program_id: PublicKeyType,
 
@@ -41,6 +44,9 @@ pub struct NewIndexer {
     /// Name of the indexer
     pub name: Option<String>,
 
+    /// Direction of indexing (forward or backward)
+    pub direction: String,
+
     /// Program ID being indexed
     pub program_id: PublicKeyType,
 
@@ -63,6 +69,9 @@ pub struct NewIndexer {
 /// Parameters for updating an existing indexer in the indexer.indexer table
 #[derive(Debug)]
 pub struct UpdateIndexer {
+    /// Direction of indexing (forward or backward)
+    pub direction: Option<String>,
+
     /// Signature to stop indexing at (if any)
     pub before_signature: Option<SignatureType>,
 
