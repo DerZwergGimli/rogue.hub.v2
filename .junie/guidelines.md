@@ -19,7 +19,10 @@ Star Atlas game data.
 #### Endpoints
 
 - indexer [GET] (should serve a simple HTML table to view the indexers)
-- marketplace-exchanges [GET]
+- staratlas
+    - exchanges [GET]
+    - player [GET]
+    - tokens [GET]
 
 ### Building and Testing
 
