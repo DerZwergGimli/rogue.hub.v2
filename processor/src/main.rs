@@ -17,6 +17,7 @@ use solana_transaction_status::{
 use std::env;
 use std::str::FromStr;
 use std::time::Duration;
+use tokio::time::sleep;
 
 mod args;
 mod convert;
@@ -53,82 +54,85 @@ pub async fn main() -> anyhow::Result<()> {
 
     let pool = db::establish_connection().await?;
 
-    let db_signatures: Vec<String> = match args.signature.is_some() {
-        true => vec![args.signature.unwrap()],
-        false => db::get_unprocessed_program_signatures_by_program_id(
-            &pool,
-            &program_id.to_string(),
-            1000,
-        )
-        .await?
-        .iter()
-        .map(|signature| signature.signature.clone())
-        .collect(),
-    };
+    loop {
+        let db_signatures: Vec<String> = match args.signature.as_ref() {
+            Some(signature) => vec![signature.clone()],
+            None => db::get_unprocessed_program_signatures_by_program_id(
+                &pool,
+                &program_id.to_string(),
+                1000,
+            )
+            .await?
+            .iter()
+            .map(|signature| signature.signature.clone())
+            .collect(),
+        };
 
-    for db_signature in db_signatures {
-        let transaction = client.get_transaction_with_config(
-            &Signature::from_str(db_signature.as_str()).unwrap(),
-            transaction_config,
-        )?;
+        for db_signature in db_signatures {
+            let transaction = client.get_transaction_with_config(
+                &Signature::from_str(db_signature.as_str()).unwrap(),
+                transaction_config,
+            )?;
 
-        let transaction_meta = transaction.transaction.meta.unwrap();
+            let transaction_meta = transaction.transaction.meta.unwrap();
 
-        match transaction.transaction.transaction {
-            EncodedTransaction::Json(json) => match json.message {
-                UiMessage::Parsed(parsed) => {
-                    for (instruction_index, instruction) in
-                        parsed.instructions.into_iter().enumerate()
-                    {
-                        match instruction {
-                            UiInstruction::Parsed(parsed) => match parsed {
-                                UiParsedInstruction::PartiallyDecoded(instruction) => {
-                                    match Pubkey::from_str(instruction.program_id.as_str())? {
-                                        decoder::staratlas::marketplace::ID => {
-                                            MarketplaceProcessor::new(pool.clone())
-                                                .process(
-                                                    transaction.slot,
-                                                    transaction.block_time.unwrap(),
-                                                    db_signature.clone(),
-                                                    instruction_index,
-                                                    processor_data(instruction.data),
-                                                    processor_accounts(instruction.accounts),
-                                                    processor_inner(
-                                                        transaction_meta.clone(),
+            match transaction.transaction.transaction {
+                EncodedTransaction::Json(json) => match json.message {
+                    UiMessage::Parsed(parsed) => {
+                        for (instruction_index, instruction) in
+                            parsed.instructions.into_iter().enumerate()
+                        {
+                            match instruction {
+                                UiInstruction::Parsed(parsed) => match parsed {
+                                    UiParsedInstruction::PartiallyDecoded(instruction) => {
+                                        match Pubkey::from_str(instruction.program_id.as_str())? {
+                                            decoder::staratlas::marketplace::ID => {
+                                                MarketplaceProcessor::new(pool.clone())
+                                                    .process(
+                                                        transaction.slot,
+                                                        transaction.block_time.unwrap(),
+                                                        db_signature.clone(),
                                                         instruction_index,
-                                                    ),
+                                                        processor_data(instruction.data),
+                                                        processor_accounts(instruction.accounts),
+                                                        processor_inner(
+                                                            transaction_meta.clone(),
+                                                            instruction_index,
+                                                        ),
+                                                    )
+                                                    .await?;
+
+                                                //UPDATE DB
+                                                update_program_signature_processed(
+                                                    &pool,
+                                                    &decoder::staratlas::marketplace::ID
+                                                        .to_string(),
+                                                    &db_signature,
+                                                    true,
                                                 )
                                                 .await?;
-
-                                            //UPDATE DB
-                                            update_program_signature_processed(
-                                                &pool,
-                                                &decoder::staratlas::marketplace::ID.to_string(),
-                                                &db_signature,
-                                                true,
-                                            )
-                                            .await?;
+                                            }
+                                            _ => {}
                                         }
-                                        _ => {}
                                     }
-                                }
-                                UiParsedInstruction::Parsed(instruction) => {
-                                    match Pubkey::from_str(instruction.program_id.as_str())? {
-                                        decoder::staratlas::marketplace::ID => {
-                                            panic!("unimplemented for marketplace")
+                                    UiParsedInstruction::Parsed(instruction) => {
+                                        match Pubkey::from_str(instruction.program_id.as_str())? {
+                                            decoder::staratlas::marketplace::ID => {
+                                                panic!("unimplemented for marketplace")
+                                            }
+                                            _ => {}
                                         }
-                                        _ => {}
                                     }
-                                }
-                            },
-                            _ => panic!("Unhandled UiInstruction type"),
+                                },
+                                _ => panic!("Unhandled UiInstruction type"),
+                            }
                         }
                     }
-                }
-                _ => panic!("Unhandled UiMessage type"),
-            },
-            _ => panic!("Unhandled EncodedTransaction type"),
-        };
+                    _ => panic!("Unhandled UiMessage type"),
+                },
+                _ => panic!("Unhandled EncodedTransaction type"),
+            };
+        }
+        sleep(SLEEP).await;
     }
-    Ok(())
 }
