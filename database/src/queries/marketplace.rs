@@ -6,7 +6,6 @@ use crate::models::{
     Exchange, ExchangeWithDependencies, NewExchange, NewPlayer, NewToken, Player, Token,
 };
 use crate::queries::staratlas;
-use crate::update_program_signature_processed;
 use sqlx::types::chrono::{DateTime, Utc};
 
 /// Retrieves all exchanges from the database
@@ -248,14 +247,6 @@ pub async fn create_exchange_with_dependencies(
         fee: exchange_data.fee,
         buddy: exchange_data.buddy,
     };
-
-    update_program_signature_processed(
-        pool,
-        &decoder::staratlas::marketplace::ID.to_string(),
-        &exchange_data.signature.clone(),
-        true,
-    )
-    .await?;
 
     create_exchange(pool, &new_exchange).await
 }

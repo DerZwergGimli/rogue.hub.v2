@@ -20,8 +20,8 @@ use crate::types::PublicKeyType;
 pub async fn get_all_indexers(pool: &DbPool) -> Result<Vec<Indexer>> {
     let indexers = sqlx::query_as::<_, Indexer>(
         r#"
-        SELECT id, name, direction, program_id, start_signature, before_signature, 
-               start_block, before_block, finished
+        SELECT id, name, direction, program_id, before_signature, until_signature, 
+               before_block, until_block, finished
         FROM indexer.indexer
         ORDER BY id
         "#,
@@ -47,8 +47,8 @@ pub async fn get_all_indexers(pool: &DbPool) -> Result<Vec<Indexer>> {
 pub async fn get_indexer_by_id(pool: &DbPool, id: i32) -> Result<Option<Indexer>> {
     let indexer = sqlx::query_as::<_, Indexer>(
         r#"
-        SELECT id, name, direction, program_id, start_signature, before_signature, 
-               start_block, before_block, finished
+        SELECT id, name, direction, program_id, before_signature, until_signature, 
+               before_block, until_block, finished
         FROM indexer.indexer
         WHERE id = $1
         "#,
@@ -78,8 +78,8 @@ pub async fn get_indexers_by_program_id(
 ) -> Result<Vec<Indexer>> {
     let indexers = sqlx::query_as::<_, Indexer>(
         r#"
-        SELECT id, name, direction, program_id, start_signature, before_signature, 
-               start_block, before_block, finished
+        SELECT id, name, direction, program_id, before_signature, until_signature, 
+               before_block, until_block, finished
         FROM indexer.indexer
         WHERE program_id = $1
         ORDER BY id
@@ -107,8 +107,8 @@ pub async fn get_indexers_by_program_id(
 pub async fn get_indexers_by_name(pool: &DbPool, name: &str) -> Result<Vec<Indexer>> {
     let indexers = sqlx::query_as::<_, Indexer>(
         r#"
-        SELECT id, name, direction, program_id, start_signature, before_signature, 
-               start_block, before_block, finished
+        SELECT id, name, direction, program_id, before_signature, until_signature, 
+               before_block, until_block, finished
         FROM indexer.indexer
         WHERE name = $1
         ORDER BY id
@@ -143,18 +143,18 @@ pub async fn create_indexer(pool: &DbPool, new_indexer: &NewIndexer) -> Result<I
         VALUES (
             $1, $2, $3, $4, $5, $6, $7, $8, $9
         )
-        RETURNING id, name, direction, program_id, until_signature, before_signature, 
-                  start_block, before_block, finished
+        RETURNING id, name, direction, program_id, before_signature, until_signature, 
+                  before_block, until_block, finished
         "#,
     )
     .bind(new_indexer.id)
     .bind(&new_indexer.name)
     .bind(&new_indexer.direction)
     .bind(&new_indexer.program_id)
-    .bind(&new_indexer.until_signature)
     .bind(&new_indexer.before_signature)
-    .bind(new_indexer.start_block)
+    .bind(&new_indexer.until_signature)
     .bind(new_indexer.before_block)
+    .bind(new_indexer.until_block)
     .bind(new_indexer.finished)
     .fetch_one(pool)
     .await
@@ -182,17 +182,19 @@ pub async fn update_indexer(pool: &DbPool, id: i32, update: &UpdateIndexer) -> R
         SET 
             direction = COALESCE($1, direction),
             before_signature = $2,
-            until_signature = $2,
-            before_block = $3,
-            unitl_block = $3,
-            finished = $4
-        WHERE id = $5
-        RETURNING id, name, direction, program_id, until_signature, before_signature, 
-                  start_block, before_block, finished
+            until_signature = $3,
+            before_block = $4,
+            until_block = $5,
+            finished = $6
+        WHERE id = $7
+        RETURNING id, name, direction, program_id, before_signature, until_signature, 
+                  before_block, until_block, finished
         "#,
     )
     .bind(&update.direction)
     .bind(&update.before_signature)
+    .bind(&update.until_signature)
+    .bind(update.before_block)
     .bind(update.until_block)
     .bind(update.finished)
     .bind(id)

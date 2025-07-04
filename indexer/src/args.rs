@@ -4,5 +4,5 @@ use clap::Parser;
 #[command(version, about, long_about = None)]
 pub struct Args {
     #[arg(short, long)]
-    pub indexer: Option<String>,
+    pub indexer_name: String,
 }

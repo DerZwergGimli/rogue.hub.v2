@@ -33,5 +33,6 @@ CREATE TABLE IF NOT EXISTS indexer.indexer (
     until_signature VARCHAR(100) REFERENCES indexer.signatures(signature) ON DELETE CASCADE,
     before_block BIGINT,
     until_block BIGINT,
-    finished BOOLEAN
+    finished BOOLEAN,
+    fetch_limit INTEGER NOT NULL
 );

@@ -4,7 +4,9 @@ use sqlx::types::chrono::{DateTime, Utc};
 
 use crate::connection::DbPool;
 use crate::error::{DbError, Result};
-use crate::models::{NewProgram, NewProgramSignature, NewSignature, Program, ProgramSignature, Signature};
+use crate::models::{
+    NewProgram, NewProgramSignature, NewSignature, Program, ProgramSignature, Signature,
+};
 use crate::types::{PublicKeyType, SignatureType};
 
 /// Retrieves all signatures from the database
@@ -107,10 +109,7 @@ pub async fn get_signatures_by_timestamp_range(
 ///
 /// # Errors
 /// Returns an error if the query fails
-pub async fn create_signature(
-    pool: &DbPool,
-    new_signature: &NewSignature,
-) -> Result<Signature> {
+pub async fn create_signature(pool: &DbPool, new_signature: &NewSignature) -> Result<Signature> {
     let signature = sqlx::query_as::<_, Signature>(
         r#"
         INSERT INTO indexer.signatures (
@@ -205,6 +204,39 @@ pub async fn get_program_signatures_by_program_id(
     .map_err(DbError::SqlxError)?;
 
     Ok(program_signatures)
+}
+
+/// Retrieves the most recent program signature for a program ID
+///
+/// # Arguments
+/// * `pool` - The database connection pool
+/// * `program_id` - The program ID to search for
+///
+/// # Returns
+/// The most recent program signature for the specified program ID, or None if no signatures exist
+///
+/// # Errors
+/// Returns an error if the query fails
+pub async fn get_last_program_signature_by_program_id(
+    pool: &DbPool,
+    program_id: &PublicKeyType,
+) -> Result<Option<ProgramSignature>> {
+    let program_signature = sqlx::query_as::<_, ProgramSignature>(
+        r#"
+        SELECT ps.program_id, ps.signature, ps.processed
+        FROM indexer.program_signatures ps
+        JOIN indexer.signatures s ON ps.signature = s.signature
+        WHERE program_id = $1
+        ORDER BY s.timestamp ASC 
+        LIMIT 1
+        "#,
+    )
+    .bind(program_id)
+    .fetch_optional(pool)
+    .await
+    .map_err(DbError::SqlxError)?;
+
+    Ok(program_signature)
 }
 
 /// Retrieves unprocessed program signatures by program ID
@@ -379,10 +411,7 @@ pub async fn get_program_by_id(
 ///
 /// # Errors
 /// Returns an error if the query fails
-pub async fn create_program(
-    pool: &DbPool,
-    new_program: &NewProgram,
-) -> Result<Program> {
+pub async fn create_program(pool: &DbPool, new_program: &NewProgram) -> Result<Program> {
     let program = sqlx::query_as::<_, Program>(
         r#"
         INSERT INTO indexer.programs (

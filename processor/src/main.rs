@@ -4,6 +4,7 @@ use crate::convert::{processor_accounts, processor_data, processor_inner};
 use crate::processor::marketplace::MarketplaceProcessor;
 use base64::Engine;
 use clap::Parser;
+use db::update_program_signature_processed;
 use solana_client::rpc_client::RpcClient;
 use solana_client::rpc_config::RpcTransactionConfig;
 use solana_commitment_config::CommitmentConfig;
@@ -98,6 +99,15 @@ pub async fn main() -> anyhow::Result<()> {
                                                     ),
                                                 )
                                                 .await?;
+
+                                            //UPDATE DB
+                                            update_program_signature_processed(
+                                                &pool,
+                                                &decoder::staratlas::marketplace::ID.to_string(),
+                                                &db_signature,
+                                                true,
+                                            )
+                                            .await?;
                                         }
                                         _ => {}
                                     }

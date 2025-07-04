@@ -19,7 +19,7 @@ const SLEEP: Duration = Duration::from_secs(5);
 pub async fn main() -> anyhow::Result<()> {
     dotenv::dotenv().ok();
 
-    let _args = Args::parse();
+    let args = Args::parse();
 
     env_logger::Builder::new()
         .filter(None, log::LevelFilter::Info)
@@ -27,7 +27,7 @@ pub async fn main() -> anyhow::Result<()> {
 
     let pool = db::establish_connection().await?;
 
-    let db_indexers = db::get_all_indexers(&pool).await?;
+    let db_indexers = db::get_indexers_by_name(&pool, &args.indexer_name).await?;
 
     let client = RpcClient::new_with_commitment(
         String::from(env::var("RPC_URL").expect("RPC_URL must be set")),
@@ -46,15 +46,23 @@ pub async fn main() -> anyhow::Result<()> {
         let mut until_signature = None;
 
         match db_indexer.direction {
-            Direction::Old => {
-                let before_signature = match db_indexer.before_signature {
+            Direction::New => {
+                until_signature = match db_indexer.until_signature {
                     None => None,
                     Some(signature) => Some(Signature::from_str(signature.as_str())?),
                 };
             }
-            Direction::New => {
-                let until_signature = match db_indexer.u {
-                    None => None,
+            Direction::Old => {
+                before_signature = match db_indexer.before_signature {
+                    None => Some(Signature::from_str(
+                        &db::get_last_program_signature_by_program_id(
+                            &pool,
+                            &program_id.to_string(),
+                        )
+                        .await?
+                        .unwrap()
+                        .signature,
+                    )?),
                     Some(signature) => Some(Signature::from_str(signature.as_str())?),
                 };
             }
@@ -62,8 +70,8 @@ pub async fn main() -> anyhow::Result<()> {
 
         let signatures_for_config = GetConfirmedSignaturesForAddress2Config {
             before: before_signature,
-            until: None,
-            limit: Some(100),
+            until: until_signature,
+            limit: Some(db_indexer),
             commitment: CommitmentConfig::finalized().into(),
         };
 
@@ -90,13 +98,47 @@ pub async fn main() -> anyhow::Result<()> {
             )
             .await?;
 
-            let new_indexer = UpdateIndexer {
-                direction: None, // Using None to keep the existing direction
-                before_signature: Some(signature.signature.clone()),
-                until_block: Some(signature.slot as i64),
-                finished: Some(false),
+            let new_indexer = match db_indexer.direction {
+                Direction::New => {
+                    UpdateIndexer {
+                        direction: None, // Using None to keep the existing direction
+                        before_signature: None,
+                        until_signature: Some(signature.signature.clone()),
+                        before_block: None,
+                        until_block: Some(signature.slot as i64),
+                        finished: Some(false),
+                    }
+                }
+                Direction::Old => {
+                    UpdateIndexer {
+                        direction: None, // Using None to keep the existing direction
+                        before_signature: Some(signature.signature.clone()),
+                        until_signature: None,
+                        before_block: Some(signature.slot as i64),
+                        until_block: None,
+                        finished: Some(false),
+                    }
+                }
             };
-            db::update_indexer(&pool, db_indexer.id, &new_indexer).await?;
+
+            match db_indexer.direction {
+                Direction::New => {
+                    let temp_indexer = db::get_indexer_by_id(&pool, db_indexer.id).await?.unwrap();
+                    match temp_indexer.until_block {
+                        None => {
+                            db::update_indexer(&pool, db_indexer.id, &new_indexer).await?;
+                        }
+                        Some(until_block) => {
+                            if until_block < signature.slot as i64 {
+                                db::update_indexer(&pool, db_indexer.id, &new_indexer).await?;
+                            }
+                        }
+                    }
+                }
+                Direction::Old => {
+                    db::update_indexer(&pool, db_indexer.id, &new_indexer).await?;
+                }
+            }
         }
 
         if signatures.len() == 0 {
