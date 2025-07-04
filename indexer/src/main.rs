@@ -19,7 +19,7 @@ const SLEEP: Duration = Duration::from_secs(5);
 pub async fn main() -> anyhow::Result<()> {
     dotenv::dotenv().ok();
 
-    let indexer_name = String::from(env::var("INDEXER_NAME").expect("RPC_URL must be set"));
+    let indexer_name = String::from(env::var("INDEXER_NAME").expect("INDEXER_NAME must be set"));
 
     env_logger::Builder::new()
         .filter(None, log::LevelFilter::Info)
