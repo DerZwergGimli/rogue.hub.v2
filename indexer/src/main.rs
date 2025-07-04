@@ -19,7 +19,7 @@ const SLEEP: Duration = Duration::from_secs(5);
 pub async fn main() -> anyhow::Result<()> {
     dotenv::dotenv().ok();
 
-    let args = Args::parse();
+    let indexer_name = String::from(env::var("INDEXER_NAME").expect("RPC_URL must be set"));
 
     env_logger::Builder::new()
         .filter(None, log::LevelFilter::Info)
@@ -27,7 +27,7 @@ pub async fn main() -> anyhow::Result<()> {
 
     let pool = db::establish_connection().await?;
 
-    let db_indexers = db::get_indexers_by_name(&pool, &args.indexer_name).await?;
+    let db_indexers = db::get_indexers_by_name(&pool, &indexer_name).await?;
 
     let client = RpcClient::new_with_commitment(
         String::from(env::var("RPC_URL").expect("RPC_URL must be set")),
