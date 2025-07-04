@@ -14,7 +14,12 @@ Star Atlas game data.
 - **`/api`** - API for accessing the database
 - **Root** - Workspace configuration and shared dependencies
 
-## Development Guidelines
+### Database Implementation
+
+#### Endpoints
+
+- indexer [GET] (should serve a simple HTML table to view the indexers)
+- marketplace-exchanges [GET]
 
 ### Building and Testing
 
