@@ -29,7 +29,7 @@ chrono = "0.4.41"
 borsh = "0.10.3"
 borsh-derive = "0.10.3"
 rust_decimal = { version = "1.37.1", features = ["macros"] }
-
+thiserror = "2.0.12"
 
 
 db = { path = "database" }
