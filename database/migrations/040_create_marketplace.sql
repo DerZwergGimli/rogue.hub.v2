@@ -4,7 +4,7 @@ CREATE SCHEMA market;
 CREATE TABLE market.exchanges
 (
     id        SERIAL PRIMARY KEY,
-    slot     INTEGER                         NOT NULL,
+    slot      INTEGER                         NOT NULL,
     signature VARCHAR(255)                    NOT NULL,
     index     integer                         NOT NULL,
     timestamp      TIMESTAMPTZ                     NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE market.exchanges
     buddy     DOUBLE PRECISION                NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_marketplace_exchanges_date ON market.exchanges (date);
+CREATE INDEX IF NOT EXISTS idx_marketplace_exchanges_timestamp ON market.exchanges (timestamp);
 CREATE INDEX IF NOT EXISTS idx_marketplace_exchanges_side ON market.exchanges (side);
 CREATE INDEX IF NOT EXISTS idx_marketplace_exchanges_asset_pair ON market.exchanges (asset, pair);
 CREATE INDEX IF NOT EXISTS idx_marketplace_exchanges_buyer_id ON market.exchanges (buyer);

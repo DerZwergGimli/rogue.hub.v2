@@ -37,6 +37,8 @@ pub async fn main() -> anyhow::Result<()> {
     let indexer_id = db_indexers[0].id;
     let program_id = Pubkey::from_str(db_indexers[0].program_id.as_str())?;
 
+    log::info!("Program_ID = {}", program_id);
+
     loop {
         let db_indexer = db::get_indexer_by_id(&pool, indexer_id).await?.unwrap();
 
