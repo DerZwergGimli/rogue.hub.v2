@@ -11,6 +11,7 @@ Star Atlas game data.
 - **`/decoder`** - Solana transaction and account data decoders
 - **`/indexer`** - Solana blockchain data indexing service
 - **`/processor`** - Solana Data processing logic
+- **`/api`** - API for accessing the database
 - **Root** - Workspace configuration and shared dependencies
 
 ## Development Guidelines

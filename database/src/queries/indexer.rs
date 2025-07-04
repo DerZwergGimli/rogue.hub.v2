@@ -21,7 +21,7 @@ pub async fn get_all_indexers(pool: &DbPool) -> Result<Vec<Indexer>> {
     let indexers = sqlx::query_as::<_, Indexer>(
         r#"
         SELECT id, name, direction, program_id, before_signature, until_signature, 
-               before_block, until_block, finished
+               before_block, until_block, finished, fetch_limit
         FROM indexer.indexer
         ORDER BY id
         "#,
@@ -48,7 +48,7 @@ pub async fn get_indexer_by_id(pool: &DbPool, id: i32) -> Result<Option<Indexer>
     let indexer = sqlx::query_as::<_, Indexer>(
         r#"
         SELECT id, name, direction, program_id, before_signature, until_signature, 
-               before_block, until_block, finished
+               before_block, until_block, finished, fetch_limit
         FROM indexer.indexer
         WHERE id = $1
         "#,
@@ -79,7 +79,7 @@ pub async fn get_indexers_by_program_id(
     let indexers = sqlx::query_as::<_, Indexer>(
         r#"
         SELECT id, name, direction, program_id, before_signature, until_signature, 
-               before_block, until_block, finished
+               before_block, until_block, finished, fetch_limit
         FROM indexer.indexer
         WHERE program_id = $1
         ORDER BY id
@@ -108,7 +108,7 @@ pub async fn get_indexers_by_name(pool: &DbPool, name: &str) -> Result<Vec<Index
     let indexers = sqlx::query_as::<_, Indexer>(
         r#"
         SELECT id, name, direction, program_id, before_signature, until_signature, 
-               before_block, until_block, finished
+               before_block, until_block, finished, fetch_limit
         FROM indexer.indexer
         WHERE name = $1
         ORDER BY id
@@ -138,13 +138,13 @@ pub async fn create_indexer(pool: &DbPool, new_indexer: &NewIndexer) -> Result<I
         r#"
         INSERT INTO indexer.indexer (
             id, name, direction, program_id, before_signature, until_signature, 
-            before_block, until_block, finished
+            before_block, until_block, finished, fetch_limit
         )
         VALUES (
-            $1, $2, $3, $4, $5, $6, $7, $8, $9
+            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
         )
         RETURNING id, name, direction, program_id, before_signature, until_signature, 
-                  before_block, until_block, finished
+                  before_block, until_block, finished, fetch_limit
         "#,
     )
     .bind(new_indexer.id)
@@ -156,6 +156,7 @@ pub async fn create_indexer(pool: &DbPool, new_indexer: &NewIndexer) -> Result<I
     .bind(new_indexer.before_block)
     .bind(new_indexer.until_block)
     .bind(new_indexer.finished)
+    .bind(new_indexer.fetch_limit)
     .fetch_one(pool)
     .await
     .map_err(DbError::SqlxError)?;
@@ -185,10 +186,11 @@ pub async fn update_indexer(pool: &DbPool, id: i32, update: &UpdateIndexer) -> R
             until_signature = $3,
             before_block = $4,
             until_block = $5,
-            finished = $6
-        WHERE id = $7
+            finished = $6,
+            fetch_limit = COALESCE($7, fetch_limit)
+        WHERE id = $8
         RETURNING id, name, direction, program_id, before_signature, until_signature, 
-                  before_block, until_block, finished
+                  before_block, until_block, finished, fetch_limit
         "#,
     )
     .bind(&update.direction)
@@ -197,6 +199,7 @@ pub async fn update_indexer(pool: &DbPool, id: i32, update: &UpdateIndexer) -> R
     .bind(update.before_block)
     .bind(update.until_block)
     .bind(update.finished)
+    .bind(update.fetch_limit)
     .bind(id)
     .fetch_one(pool)
     .await

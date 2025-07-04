@@ -71,7 +71,7 @@ pub async fn main() -> anyhow::Result<()> {
         let signatures_for_config = GetConfirmedSignaturesForAddress2Config {
             before: before_signature,
             until: until_signature,
-            limit: Some(db_indexer),
+            limit: Some(db_indexer.fetch_limit as usize),
             commitment: CommitmentConfig::finalized().into(),
         };
 
@@ -107,6 +107,7 @@ pub async fn main() -> anyhow::Result<()> {
                         before_block: None,
                         until_block: Some(signature.slot as i64),
                         finished: Some(false),
+                        fetch_limit: None, // Keep the existing fetch_limit
                     }
                 }
                 Direction::Old => {
@@ -117,6 +118,7 @@ pub async fn main() -> anyhow::Result<()> {
                         before_block: Some(signature.slot as i64),
                         until_block: None,
                         finished: Some(false),
+                        fetch_limit: None, // Keep the existing fetch_limit
                     }
                 }
             };

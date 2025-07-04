@@ -29,6 +29,9 @@ pub struct Indexer {
 
     /// Whether the indexing is finished
     pub finished: Option<bool>,
+
+    /// Maximum number of signatures to fetch in a single request
+    pub fetch_limit: i32,
 }
 
 /// Parameters for creating a new indexer in the indexer.indexer table
@@ -56,6 +59,9 @@ pub struct NewIndexer {
 
     /// Whether the indexing is finished
     pub finished: Option<bool>,
+
+    /// Maximum number of signatures to fetch in a single request
+    pub fetch_limit: i32,
 }
 
 /// Parameters for updating an existing indexer in the indexer.indexer table
@@ -73,4 +79,7 @@ pub struct UpdateIndexer {
     pub until_block: Option<i64>,
 
     pub finished: Option<bool>,
+
+    /// Maximum number of signatures to fetch in a single request
+    pub fetch_limit: Option<i32>,
 }

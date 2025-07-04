@@ -4,7 +4,8 @@ members = [
     "indexer",
     "database",
     "decoder",
-    "processor"]
+    "processor",
+    "api"]
 
 [workspace.package]
 
