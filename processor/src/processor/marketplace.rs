@@ -50,13 +50,11 @@ impl MarketplaceProcessor {
             Some(DecodedInstruction::ProcessExchange(exchange)) => {
                 let accounts_map = ProcessExchange::map_accounts(accounts.as_slice());
 
-                println!("exchange={:?}", exchange);
-                println!("accounts_map={:?}", accounts_map);
                 let inner_data = Self::map_inner_exchange_transfers(
                     inner_instructions,
                     accounts_map["currency_mint"].to_string(),
                 );
-                println!("inner_data={:?}", inner_data);
+
                 // Create an ExchangeWithDependencies struct
                 let exchange_data = db::ExchangeWithDependencies {
                     slot: slot as i32,
@@ -76,6 +74,8 @@ impl MarketplaceProcessor {
                 };
 
                 db::create_exchange_with_dependencies(&self.pool, &exchange_data).await?;
+                log::info!("Found process_exchange: {:?}", signature);
+
                 Ok(())
             }
 

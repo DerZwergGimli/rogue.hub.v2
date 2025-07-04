@@ -111,6 +111,10 @@ pub async fn main() -> anyhow::Result<()> {
                                                     true,
                                                 )
                                                 .await?;
+                                                log::info!(
+                                                    "Processed program_signature: {:?}",
+                                                    db_signature
+                                                );
                                             }
                                             _ => {}
                                         }
