@@ -6,7 +6,7 @@
 mod connection;
 mod error;
 mod models;
-mod queries;
+pub mod queries;
 mod types;
 
 pub use connection::{establish_connection, DbPool};

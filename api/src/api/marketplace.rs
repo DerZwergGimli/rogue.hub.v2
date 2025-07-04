@@ -4,6 +4,7 @@
 //! marketplace exchange data.
 
 use db::{DbPool, Exchange};
+use db::queries::staratlas;
 
 use poem_openapi::payload::Html;
 use poem_openapi::{
@@ -41,14 +42,14 @@ struct ExchangeResponse {
     timestamp: String,
     /// Side of the exchange (buy/sell)
     side: String,
-    /// Buyer ID
-    buyer: i32,
-    /// Seller ID
-    seller: i32,
-    /// Asset ID
-    asset: i32,
-    /// Pair ID
-    pair: i32,
+    /// Buyer wallet address
+    buyer: String,
+    /// Seller wallet address
+    seller: String,
+    /// Asset mint address
+    asset: String,
+    /// Pair mint address
+    pair: String,
     /// Price of the exchange
     price: f64,
     /// Size of the exchange
@@ -75,27 +76,9 @@ enum GetMarketplaceResponse {
     DBError,
 }
 
-impl From<Exchange> for ExchangeResponse {
-    fn from(exchange: Exchange) -> Self {
-        Self {
-            id: exchange.id,
-            slot: exchange.slot,
-            signature: exchange.signature,
-            index: exchange.index,
-            timestamp: exchange.timestamp.to_rfc3339(),
-            side: exchange.side,
-            buyer: exchange.buyer,
-            seller: exchange.seller,
-            asset: exchange.asset,
-            pair: exchange.pair,
-            price: exchange.price,
-            size: exchange.size,
-            volume: exchange.volume,
-            fee: exchange.fee,
-            buddy: exchange.buddy,
-        }
-    }
-}
+// We can't implement From<Exchange> for ExchangeResponse anymore because we need to resolve
+// foreign keys to addresses, which requires async functions. Instead, we'll create
+// ExchangeResponse instances directly in the get_marketplace_exchanges function.
 
 impl MarketplaceApi {
     /// Creates a new instance of the marketplace API
@@ -151,26 +134,52 @@ impl MarketplaceApi {
         match exchanges {
             None => GetMarketplaceResponse::DBError,
             Some(exchanges) => {
-                let exchange_responses = exchanges
-                    .into_iter()
-                    .map(|exchange| ExchangeResponse {
+                let mut exchange_responses = Vec::new();
+
+                for exchange in exchanges {
+                    // Resolve buyer ID to wallet address
+                    let buyer_wallet = match db::queries::staratlas::get_player_by_id(&self.db_pool, exchange.buyer).await {
+                        Ok(Some(player)) => player.wallet_address,
+                        _ => exchange.buyer.to_string(), // Fallback to ID as string if player not found
+                    };
+
+                    // Resolve seller ID to wallet address
+                    let seller_wallet = match db::queries::staratlas::get_player_by_id(&self.db_pool, exchange.seller).await {
+                        Ok(Some(player)) => player.wallet_address,
+                        _ => exchange.seller.to_string(), // Fallback to ID as string if player not found
+                    };
+
+                    // Resolve asset ID to mint address
+                    let asset_mint = match db::queries::staratlas::get_token_by_id(&self.db_pool, exchange.asset).await {
+                        Ok(Some(token)) => token.mint,
+                        _ => exchange.asset.to_string(), // Fallback to ID as string if token not found
+                    };
+
+                    // Resolve pair ID to mint address
+                    let pair_mint = match db::queries::staratlas::get_token_by_id(&self.db_pool, exchange.pair).await {
+                        Ok(Some(token)) => token.mint,
+                        _ => exchange.pair.to_string(), // Fallback to ID as string if token not found
+                    };
+
+                    exchange_responses.push(ExchangeResponse {
                         id: exchange.id,
                         slot: exchange.slot,
                         signature: exchange.signature.to_string(),
                         index: exchange.index,
                         timestamp: exchange.timestamp.to_rfc3339(),
                         side: exchange.side.to_string(),
-                        buyer: exchange.buyer,
-                        seller: exchange.seller,
-                        asset: exchange.asset,
-                        pair: exchange.pair,
+                        buyer: buyer_wallet,
+                        seller: seller_wallet,
+                        asset: asset_mint,
+                        pair: pair_mint,
                         price: exchange.price,
                         size: exchange.size,
                         volume: exchange.volume,
                         fee: exchange.fee,
                         buddy: exchange.buddy,
-                    })
-                    .collect();
+                    });
+                }
+
                 GetMarketplaceResponse::Exchnages(Json(exchange_responses))
             }
         }

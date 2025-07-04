@@ -3,7 +3,7 @@
 mod indexer;
 mod marketplace;
 mod signature;
-mod staratlas;
+pub mod staratlas;
 
 pub use indexer::*;
 pub use marketplace::*;
