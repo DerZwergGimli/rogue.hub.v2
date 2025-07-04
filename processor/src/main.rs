@@ -52,12 +52,18 @@ pub async fn main() -> anyhow::Result<()> {
 
     let pool = db::establish_connection().await?;
 
-    let db_signatures =
-        db::get_signatures_by_program_id(&pool, &program_id.to_string(), Some(1000)).await?;
+    let db_signatures: Vec<String> = match args.signature.is_some() {
+        true => vec![args.signature.unwrap()],
+        false => db::get_signatures_by_program_id(&pool, &program_id.to_string(), Some(1000))
+            .await?
+            .iter()
+            .map(|signature| signature.signature.clone())
+            .collect(),
+    };
 
     for db_signature in db_signatures {
         let transaction = client.get_transaction_with_config(
-            &Signature::from_str(db_signature.signature.as_str()).unwrap(),
+            &Signature::from_str(db_signature.as_str()).unwrap(),
             transaction_config,
         )?;
 
@@ -74,9 +80,9 @@ pub async fn main() -> anyhow::Result<()> {
                                 UiParsedInstruction::PartiallyDecoded(instruction) => {
                                     match Pubkey::from_str(instruction.program_id.as_str())? {
                                         decoder::staratlas::marketplace::ID => {
-                                            println!("signature = {}", db_signature.signature);
+                                            println!("signature = {}", db_signature);
                                             MarketplaceProcessor::process(
-                                                db_signature.signature.clone(),
+                                                db_signature.clone(),
                                                 processor_data(instruction.data),
                                                 processor_accounts(instruction.accounts),
                                                 processor_inner(

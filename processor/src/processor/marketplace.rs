@@ -10,6 +10,7 @@ pub struct MarketplaceProcessor {}
 pub struct MarketplaceExchangeInner {
     pub program_id: String,
     pub mint: Option<String>,
+    pub source: Option<String>,
     pub amount: Option<u64>,
     pub decimals: Option<u8>,
 }
@@ -20,6 +21,7 @@ pub struct MarketplaceExchangeInnerParsed {
     pub currency_amount: Decimal,
     pub asset_amount: Decimal,
     pub fee_amount: Decimal,
+    pub buddy_amount: Decimal,
     pub price: Decimal,
     pub volume: Decimal,
 }
@@ -61,34 +63,74 @@ impl MarketplaceProcessor {
         currency_mint: String,
     ) -> MarketplaceExchangeInnerParsed {
         let mut mapped_inner = vec![];
-        for inner in inner_instructions.clone() {
+        for (inner_idx, inner) in inner_instructions.clone().into_iter().enumerate() {
+            println!("[inner][{}] {:?}", inner_idx, inner);
             match inner {
-                UiInstruction::Parsed(parsed) => match parsed {
-                    UiParsedInstruction::Parsed(parsed) => {
-                        //println!("parsed={:?}", parsed);
-                        mapped_inner.push(MarketplaceExchangeInner {
-                            program_id: parsed.program_id,
-                            mint: parsed
-                                .parsed
-                                .get("info")
-                                .and_then(|info| info.get("mint"))
-                                .and_then(|v| v.as_str())
-                                .map(|s| s.to_string()),
-                            amount: parsed
-                                .parsed
-                                .get("info")
-                                .and_then(|info| info.get("tokenAmount"))
-                                .and_then(|token_amount| token_amount.get("amount"))
-                                .and_then(|v| v.as_str())
-                                .map(|s| s.parse::<u64>().unwrap()),
-                            decimals: parsed
-                                .parsed
-                                .get("info")
-                                .and_then(|info| info.get("tokenAmount"))
-                                .and_then(|token_amount| token_amount.get("decimals"))
-                                .and_then(|v| v.as_u64())
-                                .map(|s| s.try_into().unwrap()),
-                        });
+                UiInstruction::Parsed(ui_parsed_instruction) => match ui_parsed_instruction {
+                    UiParsedInstruction::Parsed(parsed_instruction) => {
+                        match parsed_instruction
+                            .parsed
+                            .get("type")
+                            .map(|s| s.as_str())
+                            .unwrap()
+                        {
+                            Some("transferChecked") => {
+                                mapped_inner.push(MarketplaceExchangeInner {
+                                    program_id: parsed_instruction.program_id,
+                                    mint: parsed_instruction
+                                        .parsed
+                                        .get("info")
+                                        .and_then(|info| info.get("mint"))
+                                        .and_then(|v| v.as_str())
+                                        .map(|s| s.to_string()),
+                                    source: parsed_instruction
+                                        .parsed
+                                        .get("info")
+                                        .and_then(|info| info.get("source"))
+                                        .and_then(|v| v.as_str())
+                                        .map(|s| s.to_string()),
+                                    amount: parsed_instruction
+                                        .parsed
+                                        .get("info")
+                                        .and_then(|info| info.get("tokenAmount"))
+                                        .and_then(|token_amount| token_amount.get("amount"))
+                                        .and_then(|v| v.as_str())
+                                        .map(|s| s.parse::<u64>().unwrap()),
+                                    decimals: parsed_instruction
+                                        .parsed
+                                        .get("info")
+                                        .and_then(|info| info.get("tokenAmount"))
+                                        .and_then(|token_amount| token_amount.get("decimals"))
+                                        .and_then(|v| v.as_u64())
+                                        .map(|s| s.try_into().unwrap()),
+                                });
+                            }
+                            Some("transfer") => {
+                                mapped_inner.push(MarketplaceExchangeInner {
+                                    program_id: parsed_instruction.program_id,
+                                    mint: parsed_instruction
+                                        .parsed
+                                        .get("info")
+                                        .and_then(|info| info.get("mint"))
+                                        .and_then(|v| v.as_str())
+                                        .map(|s| s.to_string()),
+                                    source: parsed_instruction
+                                        .parsed
+                                        .get("info")
+                                        .and_then(|info| info.get("source"))
+                                        .and_then(|v| v.as_str())
+                                        .map(|s| s.to_string()),
+                                    amount: parsed_instruction
+                                        .parsed
+                                        .get("info")
+                                        .and_then(|token_amount| token_amount.get("amount"))
+                                        .and_then(|v| v.as_str())
+                                        .map(|s| s.parse::<u64>().unwrap()),
+                                    decimals: None,
+                                });
+                            }
+                            _ => panic!("Unhandled parsed instruction type"),
+                        }
                     }
                     UiParsedInstruction::PartiallyDecoded(partially) => {
                         if (partially.program_id == decoder::extra::transferHook::ID.to_string()) {
@@ -99,9 +141,11 @@ impl MarketplaceProcessor {
                             mapped_inner.push(MarketplaceExchangeInner {
                                 program_id: partially.program_id.clone(),
                                 mint: None,
+                                source: None,
                                 amount: None,
                                 decimals: None,
-                            })
+                            });
+                            continue;
                         }
 
                         panic!(
@@ -113,6 +157,8 @@ impl MarketplaceProcessor {
                 _ => panic!("Unhandled UiInstruction type"),
             }
         }
+
+        println!("mapped_inner={:?}", mapped_inner);
 
         let mapped_inner_refs: Vec<&str> =
             mapped_inner.iter().map(|s| s.program_id.as_str()).collect();
@@ -129,7 +175,7 @@ impl MarketplaceProcessor {
                 "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
                 "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
             ] => {
-                side = Self::get_side(currency_mint, &mut mapped_inner);
+                side = Self::get_side(currency_mint, &mut mapped_inner, 1);
                 match side.as_str() {
                     "BUY" => {
                         fee_amount = convert_to_decimal(
@@ -171,7 +217,7 @@ impl MarketplaceProcessor {
                 "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
                 "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
             ] => {
-                side = Self::get_side(currency_mint, &mut mapped_inner);
+                side = Self::get_side(currency_mint, &mut mapped_inner, 1);
                 match side.as_str() {
                     "BUY" => {
                         fee_amount = convert_to_decimal(
@@ -215,7 +261,7 @@ impl MarketplaceProcessor {
                 "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
                 "tHookmPkFZDJGkS9us6sVsnYi2EKHCrVtw8zD6oXYPE",
             ] => {
-                side = Self::get_side(currency_mint, &mut mapped_inner);
+                side = Self::get_side(currency_mint, &mut mapped_inner, 1);
                 match side.as_str() {
                     "BUY" => {
                         fee_amount = convert_to_decimal(
@@ -253,6 +299,67 @@ impl MarketplaceProcessor {
                 }
             }
 
+            [
+                "BUDDYtQp7Di1xfojiCSVDksiYLQx511DPdj2nbtG9Yu5",
+                "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            ] => {
+                side = Self::get_side(currency_mint, &mut mapped_inner, 3);
+                match side.as_str() {
+                    "BUY" => {
+                        buddy_amount = convert_to_decimal(
+                            mapped_inner[1].clone().amount.unwrap(),
+                            mapped_inner[1].clone().decimals.unwrap(),
+                        );
+                        fee_amount = convert_to_decimal(
+                            mapped_inner[2].clone().amount.unwrap(),
+                            mapped_inner[2].clone().decimals.unwrap(),
+                        );
+
+                        asset_amount = convert_to_decimal(
+                            mapped_inner[3].clone().amount.unwrap(),
+                            mapped_inner[3].clone().decimals.unwrap(),
+                        );
+
+                        currency_amount = convert_to_decimal(
+                            mapped_inner[4].clone().amount.unwrap(),
+                            mapped_inner[4].clone().decimals.unwrap(),
+                        );
+                    }
+                    "SELL" => {
+                        buddy_amount = convert_to_decimal(
+                            mapped_inner[1].clone().amount.unwrap(),
+                            mapped_inner
+                                .iter()
+                                .find(|inner| {
+                                    inner.source == mapped_inner[1].source
+                                        && inner.decimals.is_some()
+                                })
+                                .unwrap()
+                                .decimals
+                                .unwrap(),
+                        );
+                        fee_amount = convert_to_decimal(
+                            mapped_inner[2].clone().amount.unwrap(),
+                            mapped_inner[2].clone().decimals.unwrap(),
+                        );
+
+                        currency_amount = convert_to_decimal(
+                            mapped_inner[3].clone().amount.unwrap(),
+                            mapped_inner[3].clone().decimals.unwrap(),
+                        );
+
+                        asset_amount = convert_to_decimal(
+                            mapped_inner[4].clone().amount.unwrap(),
+                            mapped_inner[4].clone().decimals.unwrap(),
+                        );
+                    }
+                    _ => panic!("Unhandled side"),
+                }
+            }
+
             _ => panic!("Unhandled inner instructions"),
         };
 
@@ -268,13 +375,18 @@ impl MarketplaceProcessor {
             currency_amount,
             asset_amount,
             fee_amount,
+            buddy_amount,
             price,
             volume,
         }
     }
 
-    fn get_side(currency_mint: String, mapped_inner: &mut Vec<MarketplaceExchangeInner>) -> String {
-        match mapped_inner[1]
+    fn get_side(
+        currency_mint: String,
+        mapped_inner: &mut Vec<MarketplaceExchangeInner>,
+        idx: usize,
+    ) -> String {
+        match mapped_inner[idx]
             .clone()
             .mint
             .unwrap()
