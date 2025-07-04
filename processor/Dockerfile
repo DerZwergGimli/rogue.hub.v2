@@ -12,7 +12,7 @@ RUN apt-get update && \
 COPY . .
 
 # Build the indexer
-RUN cargo build --release -p indexer
+RUN cargo build --release -p processor
 
 # Runtime stage
 FROM debian:bookworm-slim

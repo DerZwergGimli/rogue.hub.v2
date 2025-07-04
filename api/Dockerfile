@@ -11,8 +11,8 @@ RUN apt-get update && \
 # Copy the entire workspace
 COPY . .
 
-# Build the indexer
-RUN cargo build --release -p indexer
+# Build the api
+RUN cargo build --release -p api
 
 # Runtime stage
 FROM debian:bookworm-slim
