@@ -16,7 +16,7 @@ use poem_openapi::OpenApiService;
 mod api;
 mod error;
 
-use api::{IndexerApi, MarketplaceApi};
+use api::{IndexerApi, MarketplaceApi, StarAtlasApi};
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -45,11 +45,12 @@ async fn main() -> Result<()> {
 
     // Create API instances
     let indexer_api = IndexerApi::new(db_pool.clone());
-    let marketplace_api = MarketplaceApi::new(db_pool);
+    let marketplace_api = MarketplaceApi::new(db_pool.clone());
+    let staratlas_api = StarAtlasApi::new(db_pool);
 
     // Create OpenAPI service
     let api_service = OpenApiService::new(
-        (indexer_api, marketplace_api),
+        (indexer_api, marketplace_api, staratlas_api),
         "Rogue Data Hub API",
         env!("CARGO_PKG_VERSION"),
     )

@@ -82,7 +82,8 @@ impl MarketplaceProcessor {
             Some(DecodedInstruction::ProcessInitializeBuy(_))
             | Some(DecodedInstruction::ProcessInitializeSell(_))
             | Some(DecodedInstruction::ProcessCancel)
-            | Some(DecodedInstruction::InitializeOpenOrdersCounter) => Ok(()),
+            | Some(DecodedInstruction::InitializeOpenOrdersCounter)
+            | Some(DecodedInstruction::UpdateAtlasRate(_)) => Ok(()),
 
             _ => panic!(
                 "Unhandled marketplace instruction [{}] {:?}",

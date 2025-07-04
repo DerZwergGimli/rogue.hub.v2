@@ -21,15 +21,17 @@ pub fn processor_inner(
     transaction_meta: UiTransactionStatusMeta,
     instruction_index: usize,
 ) -> Vec<UiInstruction> {
-    transaction_meta
+    match transaction_meta
         .inner_instructions
         .clone()
         .unwrap()
         .into_iter()
         .find(|inner| inner.index == instruction_index as u8)
         .clone()
-        .unwrap()
-        .instructions
+    {
+        Some(inner) => inner.instructions,
+        None => vec![],
+    }
 }
 
 pub fn convert_to_decimal(amount: u64, decimals: u8) -> Decimal {
