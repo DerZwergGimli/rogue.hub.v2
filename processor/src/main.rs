@@ -69,6 +69,8 @@ pub async fn main() -> anyhow::Result<()> {
         };
 
         for db_signature in db_signatures {
+            log::info!("Processing signature: {:?}", db_signature);
+
             let transaction = client.get_transaction_with_config(
                 &Signature::from_str(db_signature.as_str()).unwrap(),
                 transaction_config,
@@ -111,10 +113,6 @@ pub async fn main() -> anyhow::Result<()> {
                                                     true,
                                                 )
                                                 .await?;
-                                                log::info!(
-                                                    "Processed program_signature: {:?}",
-                                                    db_signature
-                                                );
                                             }
                                             _ => {}
                                         }
