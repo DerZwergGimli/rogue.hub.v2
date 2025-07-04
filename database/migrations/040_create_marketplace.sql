@@ -4,10 +4,10 @@ CREATE SCHEMA market;
 CREATE TABLE market.exchanges
 (
     id        SERIAL PRIMARY KEY,
-    block     INTEGER                         NOT NULL,
+    slot     INTEGER                         NOT NULL,
     signature VARCHAR(255)                    NOT NULL,
     index     integer                         NOT NULL,
-    date      TIMESTAMPTZ                     NOT NULL,
+    timestamp      TIMESTAMPTZ                     NOT NULL,
     side      VARCHAR(4)                      NOT NULL,
     buyer     INTEGER REFERENCES staratlas.players (id) NOT NULL,
     seller    INTEGER REFERENCES staratlas.players (id) NOT NULL,

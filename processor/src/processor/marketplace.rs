@@ -1,6 +1,8 @@
 use crate::convert::convert_to_decimal;
+use chrono::DateTime;
 use db::DbPool;
 use decoder::staratlas::marketplace::{DecodedInstruction, ProcessExchange};
+use rust_decimal::prelude::ToPrimitive;
 use rust_decimal::Decimal;
 use solana_sdk::pubkey::Pubkey;
 use solana_transaction_status::{UiInstruction, UiParsedInstruction};
@@ -36,7 +38,10 @@ impl MarketplaceProcessor {
 
     pub async fn process(
         &self,
+        slot: u64,
+        block_time: i64,
         signature: String,
+        index: usize,
         data: Vec<u8>,
         accounts: Vec<Pubkey>,
         inner_instructions: Vec<UiInstruction>,
@@ -52,14 +57,33 @@ impl MarketplaceProcessor {
                     accounts_map["currency_mint"].to_string(),
                 );
                 println!("inner_data={:?}", inner_data);
+                // Create an ExchangeWithDependencies struct
+                let exchange_data = db::ExchangeWithDependencies {
+                    slot: slot as i32,
+                    signature: signature.clone(),
+                    index: index as i32,
+                    timestamp: DateTime::from_timestamp(block_time, 0).unwrap(),
+                    side: inner_data.side.clone(),
+                    buyer_wallet: accounts_map["order_taker"].to_string(),
+                    seller_wallet: accounts_map["order_initializer"].to_string(),
+                    asset_mint: accounts_map["asset_mint"].to_string(),
+                    pair_mint: accounts_map["currency_mint"].to_string(),
+                    price: inner_data.price.to_f64().unwrap_or_default(),
+                    size: inner_data.asset_amount.to_i32().unwrap_or_default(),
+                    volume: inner_data.volume.to_f64().unwrap_or_default(),
+                    fee: inner_data.fee_amount.to_f64().unwrap_or_default(),
+                    buddy: inner_data.buddy_amount.to_f64().unwrap_or_default(),
+                };
 
+                db::create_exchange_with_dependencies(&self.pool, &exchange_data).await?;
                 Ok(())
             }
 
-            Some(DecodedInstruction::ProcessInitializeBuy(_)) => {}
-            Some(DecodedInstruction::ProcessInitializeSell(_)) => {}
-            Some(DecodedInstruction::ProcessCancel) => {}
-            Some(DecodedInstruction::InitializeOpenOrdersCounter) => {}
+            Some(DecodedInstruction::ProcessInitializeBuy(_))
+            | Some(DecodedInstruction::ProcessInitializeSell(_))
+            | Some(DecodedInstruction::ProcessCancel)
+            | Some(DecodedInstruction::InitializeOpenOrdersCounter) => Ok(()),
+
             _ => panic!(
                 "Unhandled marketplace instruction [{}] {:?}",
                 signature,

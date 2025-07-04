@@ -84,15 +84,20 @@ pub async fn main() -> anyhow::Result<()> {
                                 UiParsedInstruction::PartiallyDecoded(instruction) => {
                                     match Pubkey::from_str(instruction.program_id.as_str())? {
                                         decoder::staratlas::marketplace::ID => {
-                                            MarketplaceProcessor::new(pool.clone()).process(
-                                                db_signature.clone(),
-                                                processor_data(instruction.data),
-                                                processor_accounts(instruction.accounts),
-                                                processor_inner(
-                                                    transaction_meta.clone(),
+                                            MarketplaceProcessor::new(pool.clone())
+                                                .process(
+                                                    transaction.slot,
+                                                    transaction.block_time.unwrap(),
+                                                    db_signature.clone(),
                                                     instruction_index,
-                                                ),
-                                            );
+                                                    processor_data(instruction.data),
+                                                    processor_accounts(instruction.accounts),
+                                                    processor_inner(
+                                                        transaction_meta.clone(),
+                                                        instruction_index,
+                                                    ),
+                                                )
+                                                .await?;
                                         }
                                         _ => {}
                                     }

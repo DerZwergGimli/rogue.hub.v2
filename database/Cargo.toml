@@ -15,8 +15,12 @@ thiserror = "1.0"
 async-trait = "0.1"
 
 
+decoder.workspace = true
+
+
 # Solana dependencies for type compatibility
 solana-sdk.workspace = true
+
 
 
 [lib]
