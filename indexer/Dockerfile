@@ -13,7 +13,7 @@ COPY . .
 
 # Build the indexer
 #RUN cargo build --release -p indexer
-RUN cargo build -p indexer
+RUN cargo build --debug -p indexer
 
 
 # Runtime stage
