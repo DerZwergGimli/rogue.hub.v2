@@ -19,7 +19,8 @@ const SLEEP: Duration = Duration::from_secs(5);
 pub async fn main() -> anyhow::Result<()> {
     dotenv::dotenv().ok();
 
-    let indexer_name = String::from(env::var("INDEXER_NAME").expect("INDEXER_NAME must be set"));
+    let indexer_name_to_use =
+        String::from(env::var("INDEXER_NAME").expect("INDEXER_NAME must be set"));
     let startup_delay = Duration::from_millis(
         env::var("STARTUP_DELAY")
             .unwrap_or_else(|_| "100".to_string())
@@ -34,25 +35,27 @@ pub async fn main() -> anyhow::Result<()> {
 
     let pool = db::establish_connection().await?;
 
-    let db_indexers = db::get_indexers_by_name(&pool, &indexer_name).await?;
-
-    if db_indexers.len() == 0 {
-        log::error!("No indexer named {:?} found!", &indexer_name);
-        return Ok(());
-    }
+    let db_indexer = match db::get_indexer_by_name(&pool, indexer_name_to_use.as_str()).await {
+        Ok(indexer) => indexer,
+        Err(_) => {
+            log::error!("No indexer named {:?} found!", &indexer_name_to_use);
+            return Ok(());
+        }
+    };
 
     let client = RpcClient::new_with_commitment(
         String::from(env::var("RPC_URL").expect("RPC_URL must be set")),
         CommitmentConfig::confirmed(),
     );
 
-    let indexer_id = db_indexers[0].id;
-    let program_id = Pubkey::from_str(db_indexers[0].program_id.as_str())?;
+    let indexer_name = db_indexer.name;
+    let program_id = Pubkey::from_str(db_indexer.program_id.as_str())?;
 
+    log::info!("Indexer = [{}]", indexer_name);
     log::info!("Program_ID = {}", program_id);
 
     loop {
-        let db_indexer = db::get_indexer_by_id(&pool, indexer_id).await?.unwrap();
+        let db_indexer = db::get_indexer_by_name(&pool, &indexer_name).await?;
 
         let mut before_signature = None;
         let mut until_signature = None;
@@ -115,7 +118,7 @@ pub async fn main() -> anyhow::Result<()> {
                     UpdateIndexer {
                         direction: None, // Using None to keep the existing direction
                         signature: Some(signatures.first().unwrap().clone().signature),
-                        block: Some(signature.slot as i64),
+                        block: Some(signatures.first().unwrap().clone().slot as i64),
                         timestamp: Some(
                             DateTime::from_timestamp(signature.block_time.unwrap(), 0).unwrap(),
                         ),
@@ -126,7 +129,7 @@ pub async fn main() -> anyhow::Result<()> {
                 Direction::DOWN => {
                     UpdateIndexer {
                         direction: None, // Using None to keep the existing direction
-                        signature: Some(signatures.last().unwrap().clone().signature),
+                        signature: Some(signature.signature),
                         block: Some(signature.slot as i64),
                         timestamp: Some(
                             DateTime::from_timestamp(signature.block_time.unwrap(), 0).unwrap(),
@@ -140,16 +143,17 @@ pub async fn main() -> anyhow::Result<()> {
             match db_indexer.direction {
                 Direction::UP => match db_indexer.block {
                     None => {
-                        db::update_indexer(&pool, db_indexer.id, &new_indexer).await?;
+                        db::update_indexer(&pool, db_indexer.name.clone(), &new_indexer).await?;
                     }
                     Some(until_block) => {
                         if until_block < signature.slot as i64 {
-                            db::update_indexer(&pool, db_indexer.id, &new_indexer).await?;
+                            db::update_indexer(&pool, db_indexer.name.clone(), &new_indexer)
+                                .await?;
                         }
                     }
                 },
                 Direction::DOWN => {
-                    db::update_indexer(&pool, db_indexer.id, &new_indexer).await?;
+                    db::update_indexer(&pool, db_indexer.name.clone(), &new_indexer).await?;
                 }
             }
         }
@@ -157,7 +161,7 @@ pub async fn main() -> anyhow::Result<()> {
         if signatures.len() == 0 {
             log::info!(
                 "[{:?}] no new signatures for {}",
-                db_indexer.name.clone().unwrap(),
+                db_indexer.name,
                 program_id
             );
             if db_indexer.direction == Direction::DOWN {
@@ -167,7 +171,7 @@ pub async fn main() -> anyhow::Result<()> {
         } else {
             log::info!(
                 "[{:?}] added {} signatures for {}",
-                db_indexer.name.unwrap(),
+                db_indexer.name,
                 signatures.len(),
                 program_id
             );

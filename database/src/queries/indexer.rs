@@ -33,34 +33,6 @@ pub async fn get_all_indexers(pool: &DbPool) -> Result<Vec<Indexer>> {
     Ok(indexers)
 }
 
-/// Retrieves an indexer by its ID
-///
-/// # Arguments
-/// * `pool` - The database connection pool
-/// * `id` - The ID of the indexer to retrieve
-///
-/// # Returns
-/// The indexer with the specified ID, or None if no such indexer exists
-///
-/// # Errors
-/// Returns an error if the query fails
-pub async fn get_indexer_by_id(pool: &DbPool, id: i32) -> Result<Option<Indexer>> {
-    let indexer = sqlx::query_as::<_, Indexer>(
-        r#"
-        SELECT id, name, direction, program_id, signature, block, timestamp,
-            finished, fetch_limit
-        FROM indexer.indexer
-        WHERE id = $1
-        "#,
-    )
-    .bind(id)
-    .fetch_optional(pool)
-    .await
-    .map_err(DbError::SqlxError)?;
-
-    Ok(indexer)
-}
-
 /// Retrieves indexers by program ID
 ///
 /// # Arguments
@@ -104,18 +76,18 @@ pub async fn get_indexers_by_program_id(
 ///
 /// # Errors
 /// Returns an error if the query fails
-pub async fn get_indexers_by_name(pool: &DbPool, name: &str) -> Result<Vec<Indexer>> {
+pub async fn get_indexer_by_name(pool: &DbPool, name: &str) -> Result<Indexer> {
     let indexers = sqlx::query_as::<_, Indexer>(
         r#"
-        SELECT id, name, direction, program_id, signature, block, timestamp,
+        SELECT name, direction, program_id, signature, block, timestamp,
                finished, fetch_limit
         FROM indexer.indexer
         WHERE name = $1
-        ORDER BY id
+       
         "#,
     )
     .bind(name.to_string())
-    .fetch_all(pool)
+    .fetch_one(pool)
     .await
     .map_err(DbError::SqlxError)?;
 
@@ -137,17 +109,16 @@ pub async fn create_indexer(pool: &DbPool, new_indexer: &NewIndexer) -> Result<I
     let indexer = sqlx::query_as::<_, Indexer>(
         r#"
         INSERT INTO indexer.indexer (
-            id, name, direction, program_id, signature, block, timestamp,
+            name, direction, program_id, signature, block, timestamp,
             finished, fetch_limit
         )
         VALUES (
-            $1, $2, $3, $4, $5, $6, $7, $8, $9
+            $1, $2, $3, $4, $5, $6, $7, $8,
         )
         RETURNING id, name, direction, program_id, signature, block, timestamp,
                    finished, fetch_limit
         "#,
     )
-    .bind(new_indexer.id)
     .bind(&new_indexer.name)
     .bind(&new_indexer.direction)
     .bind(&new_indexer.program_id)
@@ -175,7 +146,11 @@ pub async fn create_indexer(pool: &DbPool, new_indexer: &NewIndexer) -> Result<I
 ///
 /// # Errors
 /// Returns an error if the query fails or if no indexer with the specified ID exists
-pub async fn update_indexer(pool: &DbPool, id: i32, update: &UpdateIndexer) -> Result<Indexer> {
+pub async fn update_indexer(
+    pool: &DbPool,
+    name: String,
+    update: &UpdateIndexer,
+) -> Result<Indexer> {
     let indexer = sqlx::query_as::<_, Indexer>(
         r#"
         UPDATE indexer.indexer
@@ -184,11 +159,10 @@ pub async fn update_indexer(pool: &DbPool, id: i32, update: &UpdateIndexer) -> R
             signature = $2,
             block = $3,
             timestamp = $4,
-            finished = $5,
-            fetch_limit = COALESCE($6, fetch_limit)
-        WHERE id = $7
+            finished = $5
+        WHERE name = $6
 
-        RETURNING id, name, direction, program_id, signature, block, timestamp, 
+        RETURNING name, direction, program_id, signature, block, timestamp, 
                    finished, fetch_limit
         "#,
     )
@@ -197,8 +171,7 @@ pub async fn update_indexer(pool: &DbPool, id: i32, update: &UpdateIndexer) -> R
     .bind(&update.block)
     .bind(&update.timestamp)
     .bind(update.finished)
-    .bind(update.fetch_limit)
-    .bind(id)
+    .bind(name)
     .fetch_one(pool)
     .await
     .map_err(|e| match e {

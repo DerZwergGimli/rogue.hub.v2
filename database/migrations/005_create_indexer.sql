@@ -24,8 +24,7 @@ CREATE TYPE indexer_direction_type AS ENUM ('UP', 'DOWN');
 
 
 CREATE TABLE IF NOT EXISTS indexer.indexer (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
+    name    VARCHAR(50) NOT NULL PRIMARY KEY,
     direction indexer_direction_type,
     program_id VARCHAR(50) REFERENCES indexer.programs(program_id) ON DELETE CASCADE,
     signature VARCHAR(88) REFERENCES indexer.signatures(signature) ON DELETE CASCADE,

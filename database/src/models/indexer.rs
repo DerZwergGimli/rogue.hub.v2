@@ -7,8 +7,7 @@ use sqlx::FromRow;
 /// Represents an indexer record in the indexer.indexer table
 #[derive(Debug, FromRow, Clone)]
 pub struct Indexer {
-    pub id: i32,
-    pub name: Option<String>,
+    pub name: String,
     pub direction: Direction,
     pub program_id: PublicKeyType,
     pub signature: Option<SignatureType>,
@@ -21,8 +20,7 @@ pub struct Indexer {
 /// Parameters for creating a new indexer in the indexer.indexer table
 #[derive(Debug)]
 pub struct NewIndexer {
-    pub id: i32,
-    pub name: Option<String>,
+    pub name: String,
     pub direction: Direction,
     pub program_id: PublicKeyType,
     pub signature: Option<SignatureType>,
