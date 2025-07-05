@@ -12,6 +12,7 @@ RUN apt-get update && \
 COPY . .
 
 # Build the indexer
+#RUN cargo build --release -p indexer
 RUN cargo build --release -p indexer
 
 # Runtime stage
@@ -25,7 +26,8 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy the built binary from builder
-COPY --from=builder /usr/src/app/target/release/indexer /app/indexer
+#COPY --from=builder /usr/src/app/target/release/indexer /app/indexer
+COPY --from=builder /usr/src/app/target/debug/indexer /app/indexer
 
 # Run the indexer
 CMD ["/app/indexer"]
