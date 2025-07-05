@@ -5,8 +5,8 @@
 
 use db::{DbPool, Indexer as IndexerDB, PublicKeyType, SignatureType};
 use poem_openapi::{
-    ApiResponse, Object, OpenApi, Tags,
-    payload::{Html, Json},
+    payload::{Html, Json}, ApiResponse, Object, OpenApi,
+    Tags,
 };
 
 /// Tags for the indexer API
@@ -85,7 +85,6 @@ impl IndexerApi {
                     <td>{}</td>
                     <td>{}</td>
                     <td>{}</td>
-                    <td>{}</td>
                 </tr>
                 "#,
                 indexer.id,
@@ -93,23 +92,12 @@ impl IndexerApi {
                 indexer.direction,
                 indexer.program_id,
                 indexer
-                    .before_signature
+                    .signature
                     .as_ref()
                     .map(|s| s.to_string())
                     .unwrap_or_default(),
-                indexer
-                    .until_signature
-                    .as_ref()
-                    .map(|s| s.to_string())
-                    .unwrap_or_default(),
-                indexer
-                    .before_block
-                    .map(|b| b.to_string())
-                    .unwrap_or_default(),
-                indexer
-                    .until_block
-                    .map(|b| b.to_string())
-                    .unwrap_or_default(),
+                indexer.block.map(|b| b.to_string()).unwrap_or_default(),
+                indexer.timestamp.map(|b| b.to_string()).unwrap_or_default(),
                 indexer.finished.map(|f| f.to_string()).unwrap_or_default(),
                 indexer.fetch_limit,
             ));
@@ -133,10 +121,9 @@ struct Indexer {
     name: Option<String>,
     direction: String,
     program_id: PublicKeyType,
-    before_signature: Option<SignatureType>,
-    until_signature: Option<SignatureType>,
-    before_block: Option<i64>,
-    until_block: Option<i64>,
+    signature: Option<SignatureType>,
+    block: Option<i64>,
+    timestamp: Option<String>,
     finished: Option<bool>,
     fetch_limit: i32,
 }
@@ -171,10 +158,12 @@ impl IndexerApi {
                         name: indexer.name,
                         direction: indexer.direction.to_string(),
                         program_id: indexer.program_id,
-                        before_signature: indexer.before_signature,
-                        until_signature: indexer.until_signature,
-                        before_block: indexer.before_block,
-                        until_block: indexer.until_block,
+                        signature: indexer.signature,
+                        block: indexer.block,
+                        timestamp: match indexer.timestamp {
+                            Some(ts) => Some(ts.to_string()),
+                            None => None,
+                        },
                         finished: indexer.finished,
                         fetch_limit: indexer.fetch_limit,
                     })
