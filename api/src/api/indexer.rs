@@ -58,7 +58,6 @@ impl IndexerApi {
                 <h1>Indexers</h1>
                 <table>
                     <tr>
-                        <th>ID</th>
                         <th>Name</th>
                         <th>Direction</th>
                         <th>Program ID</th>
@@ -77,7 +76,6 @@ impl IndexerApi {
                 r#"
                 <tr>
                     <td>{}</td>
-                    <td>{}</td>
                     <td>{:?}</td>
                     <td>{}</td>
                     <td>{}</td>
@@ -87,8 +85,7 @@ impl IndexerApi {
                     <td>{}</td>
                 </tr>
                 "#,
-                indexer.id,
-                indexer.name.as_deref().unwrap_or(""),
+                indexer.name,
                 indexer.direction,
                 indexer.program_id,
                 indexer
@@ -117,8 +114,7 @@ impl IndexerApi {
 
 #[derive(Object)]
 struct Indexer {
-    id: i32,
-    name: Option<String>,
+    name: String,
     direction: String,
     program_id: PublicKeyType,
     signature: Option<SignatureType>,
@@ -154,7 +150,6 @@ impl IndexerApi {
                 let response = indexers
                     .into_iter()
                     .map(|indexer| Indexer {
-                        id: indexer.id,
                         name: indexer.name,
                         direction: indexer.direction.to_string(),
                         program_id: indexer.program_id,
