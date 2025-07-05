@@ -143,7 +143,7 @@ pub async fn create_indexer(pool: &DbPool, new_indexer: &NewIndexer) -> Result<I
         VALUES (
             $1, $2, $3, $4, $5, $6, $7, $8, $9
         )
-        RETURNING id, name, direction, program_id, signature, block, timestamp
+        RETURNING id, name, direction, program_id, signature, block, timestamp,
                    finished, fetch_limit
         "#,
     )
@@ -183,10 +183,11 @@ pub async fn update_indexer(pool: &DbPool, id: i32, update: &UpdateIndexer) -> R
             direction = COALESCE($1, direction),
             signature = $2,
             block = $3,
-            finished = $4,
-            timestamp = $5
+            timestamp = $4,
+            finished = $5,
             fetch_limit = COALESCE($6, fetch_limit)
         WHERE id = $7
+
         RETURNING id, name, direction, program_id, signature, block, timestamp, 
                    finished, fetch_limit
         "#,

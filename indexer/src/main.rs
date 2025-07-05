@@ -114,7 +114,7 @@ pub async fn main() -> anyhow::Result<()> {
                 Direction::UP => {
                     UpdateIndexer {
                         direction: None, // Using None to keep the existing direction
-                        signature: Some(signature.signature.clone()),
+                        signature: Some(signatures.first().unwrap().clone().signature),
                         block: Some(signature.slot as i64),
                         timestamp: Some(
                             DateTime::from_timestamp(signature.block_time.unwrap(), 0).unwrap(),
@@ -126,7 +126,7 @@ pub async fn main() -> anyhow::Result<()> {
                 Direction::DOWN => {
                     UpdateIndexer {
                         direction: None, // Using None to keep the existing direction
-                        signature: Some(signature.signature.clone()),
+                        signature: Some(signatures.last().unwrap().clone().signature),
                         block: Some(signature.slot as i64),
                         timestamp: Some(
                             DateTime::from_timestamp(signature.block_time.unwrap(), 0).unwrap(),
