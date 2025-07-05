@@ -154,6 +154,7 @@ pub async fn main() -> anyhow::Result<()> {
                 program_id
             );
             if db_indexer.direction == Direction::Old {
+                println!("Finished all");
                 return Ok(());
             }
         } else {
