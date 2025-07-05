@@ -159,15 +159,14 @@ pub async fn main() -> anyhow::Result<()> {
             if db_indexer.direction == Direction::Old {
                 return Ok(());
             }
+        } else {
+            log::info!(
+                "[{:?}] added {} signatures for {}",
+                db_indexer.name.unwrap(),
+                signatures.len(),
+                program_id
+            );
         }
-
-        log::info!(
-            "[{:?}] added {} signatures for {}",
-            db_indexer.name.unwrap(),
-            signatures.len(),
-            program_id
-        );
-
         sleep(SLEEP).await;
     }
 }
