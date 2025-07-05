@@ -131,19 +131,16 @@ pub async fn main() -> anyhow::Result<()> {
             };
 
             match db_indexer.direction {
-                Direction::New => {
-                    let temp_indexer = db::get_indexer_by_id(&pool, db_indexer.id).await?.unwrap();
-                    match temp_indexer.until_block {
-                        None => {
+                Direction::New => match db_indexer.until_block {
+                    None => {
+                        db::update_indexer(&pool, db_indexer.id, &new_indexer).await?;
+                    }
+                    Some(until_block) => {
+                        if until_block < signature.slot as i64 {
                             db::update_indexer(&pool, db_indexer.id, &new_indexer).await?;
                         }
-                        Some(until_block) => {
-                            if until_block < signature.slot as i64 {
-                                db::update_indexer(&pool, db_indexer.id, &new_indexer).await?;
-                            }
-                        }
                     }
-                }
+                },
                 Direction::Old => {
                     db::update_indexer(&pool, db_indexer.id, &new_indexer).await?;
                 }
