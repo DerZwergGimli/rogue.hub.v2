@@ -86,63 +86,79 @@ pub async fn main() -> anyhow::Result<()> {
 
             let transaction_meta = transaction.transaction.meta.unwrap();
 
-            match transaction.transaction.transaction {
-                EncodedTransaction::Json(json) => match json.message {
-                    UiMessage::Parsed(parsed) => {
-                        for (instruction_index, instruction) in
-                            parsed.instructions.into_iter().enumerate()
-                        {
-                            match instruction {
-                                UiInstruction::Parsed(parsed) => match parsed {
-                                    UiParsedInstruction::PartiallyDecoded(instruction) => {
-                                        match Pubkey::from_str(instruction.program_id.as_str())? {
-                                            decoder::staratlas::marketplace::ID => {
-                                                MarketplaceProcessor::new(pool.clone())
-                                                    .process(
-                                                        transaction.slot,
-                                                        transaction.block_time.unwrap(),
-                                                        db_signature.clone(),
-                                                        instruction_index,
-                                                        processor_data(instruction.data),
-                                                        processor_accounts(instruction.accounts),
-                                                        processor_inner(
-                                                            transaction_meta.clone(),
+            if transaction_meta.status.is_ok() {
+                match transaction.transaction.transaction {
+                    EncodedTransaction::Json(json) => match json.message {
+                        UiMessage::Parsed(parsed) => {
+                            for (instruction_index, instruction) in
+                                parsed.instructions.into_iter().enumerate()
+                            {
+                                match instruction {
+                                    UiInstruction::Parsed(parsed) => match parsed {
+                                        UiParsedInstruction::PartiallyDecoded(instruction) => {
+                                            match Pubkey::from_str(instruction.program_id.as_str())?
+                                            {
+                                                decoder::staratlas::marketplace::ID => {
+                                                    MarketplaceProcessor::new(pool.clone())
+                                                        .process(
+                                                            transaction.slot,
+                                                            transaction.block_time.unwrap(),
+                                                            db_signature.clone(),
                                                             instruction_index,
-                                                        ),
+                                                            processor_data(instruction.data),
+                                                            processor_accounts(
+                                                                instruction.accounts,
+                                                            ),
+                                                            processor_inner(
+                                                                transaction_meta.clone(),
+                                                                instruction_index,
+                                                            ),
+                                                        )
+                                                        .await?;
+
+                                                    //UPDATE DB
+                                                    update_program_signature_processed(
+                                                        &pool,
+                                                        &decoder::staratlas::marketplace::ID
+                                                            .to_string(),
+                                                        &db_signature,
+                                                        true,
                                                     )
                                                     .await?;
-
-                                                //UPDATE DB
-                                                update_program_signature_processed(
-                                                    &pool,
-                                                    &decoder::staratlas::marketplace::ID
-                                                        .to_string(),
-                                                    &db_signature,
-                                                    true,
-                                                )
-                                                .await?;
+                                                }
+                                                _ => {}
                                             }
-                                            _ => {}
                                         }
-                                    }
-                                    UiParsedInstruction::Parsed(instruction) => {
-                                        match Pubkey::from_str(instruction.program_id.as_str())? {
-                                            decoder::staratlas::marketplace::ID => {
-                                                panic!("unimplemented for marketplace")
+                                        UiParsedInstruction::Parsed(instruction) => {
+                                            match Pubkey::from_str(instruction.program_id.as_str())?
+                                            {
+                                                decoder::staratlas::marketplace::ID => {
+                                                    panic!("unimplemented for marketplace")
+                                                }
+                                                _ => {}
                                             }
-                                            _ => {}
                                         }
-                                    }
-                                },
-                                _ => panic!("Unhandled UiInstruction type"),
+                                    },
+                                    _ => panic!("Unhandled UiInstruction type"),
+                                }
                             }
                         }
-                    }
-                    _ => panic!("Unhandled UiMessage type"),
-                },
-                _ => panic!("Unhandled EncodedTransaction type"),
+                        _ => panic!("Unhandled UiMessage type"),
+                    },
+                    _ => panic!("Unhandled EncodedTransaction type"),
+                }
             };
+
+            //UPDATE DB
+            update_program_signature_processed(
+                &pool,
+                &decoder::staratlas::marketplace::ID.to_string(),
+                &db_signature,
+                true,
+            )
+            .await?;
         }
+
         sleep(SLEEP).await;
     }
 }
