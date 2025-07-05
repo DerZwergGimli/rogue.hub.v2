@@ -18,17 +18,20 @@ use sqlx::types::chrono::{DateTime, Utc};
 ///
 /// # Errors
 /// Returns an error if the query fails
-pub async fn get_all_exchanges(pool: &DbPool) -> Result<Vec<Exchange>> {
+pub async fn get_exchanges(pool: &DbPool, limit: i32, offset: i32) -> Result<Vec<Exchange>> {
     let exchanges = sqlx::query_as::<_, Exchange>(
         r#"
         SELECT id, slot, signature, index, timestamp , side, buyer, seller, asset, pair, price, size, volume, fee, buddy
         FROM market.exchanges
         ORDER BY slot DESC
+            LIMIT $1 OFFSET $2
         "#,
     )
-    .fetch_all(pool)
-    .await
-    .map_err(DbError::SqlxError)?;
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(pool)
+        .await
+        .map_err(DbError::SqlxError)?;
 
     Ok(exchanges)
 }
@@ -52,10 +55,11 @@ pub async fn get_exchange_by_id(pool: &DbPool, id: i32) -> Result<Option<Exchang
         WHERE id = $1
         "#,
     )
-    .bind(id)
-    .fetch_optional(pool)
-    .await
-    .map_err(DbError::SqlxError)?;
+        .bind(id)
+
+        .fetch_optional(pool)
+        .await
+        .map_err(DbError::SqlxError)?;
 
     Ok(exchange)
 }
@@ -71,19 +75,27 @@ pub async fn get_exchange_by_id(pool: &DbPool, id: i32) -> Result<Option<Exchang
 ///
 /// # Errors
 /// Returns an error if the query fails
-pub async fn get_exchanges_by_buyer_id(pool: &DbPool, buyer_id: i32) -> Result<Vec<Exchange>> {
+pub async fn get_exchanges_by_buyer_id(
+    pool: &DbPool,
+    buyer_id: i32,
+    limit: i32,
+    offset: i32,
+) -> Result<Vec<Exchange>> {
     let exchanges = sqlx::query_as::<_, Exchange>(
         r#"
-        SELECT id, slot, signature, index, timestamp , side, buyer, seller, asset, pair, price, size, volume, fee, buddy
+        SELECT id, slot, signature, index, timestamp, side, buyer, seller, asset, pair, price, size, volume, fee, buddy
         FROM market.exchanges
         WHERE buyer = $1
         ORDER BY slot DESC
+        LIMIT $2 OFFSET $3
         "#,
     )
-    .bind(buyer_id)
-    .fetch_all(pool)
-    .await
-    .map_err(DbError::SqlxError)?;
+        .bind(buyer_id)
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(pool)
+        .await
+        .map_err(DbError::SqlxError)?;
 
     Ok(exchanges)
 }
@@ -99,19 +111,27 @@ pub async fn get_exchanges_by_buyer_id(pool: &DbPool, buyer_id: i32) -> Result<V
 ///
 /// # Errors
 /// Returns an error if the query fails
-pub async fn get_exchanges_by_seller_id(pool: &DbPool, seller_id: i32) -> Result<Vec<Exchange>> {
+pub async fn get_exchanges_by_seller_id(
+    pool: &DbPool,
+    seller_id: i32,
+    limit: i32,
+    offset: i32,
+) -> Result<Vec<Exchange>> {
     let exchanges = sqlx::query_as::<_, Exchange>(
         r#"
         SELECT id, slot, signature, index, timestamp, side, buyer, seller, asset, pair, price, size, volume, fee, buddy
         FROM market.exchanges
         WHERE seller = $1
         ORDER BY slot DESC
+        LIMIT $2 OFFSET $3
         "#,
     )
-    .bind(seller_id)
-    .fetch_all(pool)
-    .await
-    .map_err(DbError::SqlxError)?;
+        .bind(seller_id)
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(pool)
+        .await
+        .map_err(DbError::SqlxError)?;
 
     Ok(exchanges)
 }
@@ -127,19 +147,27 @@ pub async fn get_exchanges_by_seller_id(pool: &DbPool, seller_id: i32) -> Result
 ///
 /// # Errors
 /// Returns an error if the query fails
-pub async fn get_exchanges_by_asset_id(pool: &DbPool, asset_id: i32) -> Result<Vec<Exchange>> {
+pub async fn get_exchanges_by_asset_id(
+    pool: &DbPool,
+    asset_id: i32,
+    limit: i32,
+    offset: i32,
+) -> Result<Vec<Exchange>> {
     let exchanges = sqlx::query_as::<_, Exchange>(
         r#"
         SELECT id, slot, signature, index, timestamp, side, buyer, seller, asset, pair, price, size, volume, fee, buddy
         FROM market.exchanges
         WHERE asset = $1
         ORDER BY slot DESC
+        LIMIT $2 OFFSET $3
         "#,
     )
-    .bind(asset_id)
-    .fetch_all(pool)
-    .await
-    .map_err(DbError::SqlxError)?;
+        .bind(asset_id)
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(pool)
+        .await
+        .map_err(DbError::SqlxError)?;
 
     Ok(exchanges)
 }
@@ -167,23 +195,23 @@ pub async fn create_exchange(pool: &DbPool, new_exchange: &NewExchange) -> Resul
         RETURNING id, slot, signature, index, timestamp, side, buyer, seller, asset, pair, price, size, volume, fee, buddy
         "#,
     )
-    .bind(new_exchange.slot)
-    .bind(&new_exchange.signature.as_str())
-    .bind(new_exchange.index)
-    .bind(new_exchange.timestamp)
-    .bind(&new_exchange.side.as_str())
-    .bind(new_exchange.buyer)
-    .bind(new_exchange.seller)
-    .bind(new_exchange.asset)
-    .bind(new_exchange.pair)
-    .bind(new_exchange.price)
-    .bind(new_exchange.size)
-    .bind(new_exchange.volume)
-    .bind(new_exchange.fee)
-    .bind(new_exchange.buddy)
-    .fetch_one(pool)
-    .await
-    .map_err(DbError::SqlxError)?;
+        .bind(new_exchange.slot)
+        .bind(&new_exchange.signature.as_str())
+        .bind(new_exchange.index)
+        .bind(new_exchange.timestamp)
+        .bind(&new_exchange.side.as_str())
+        .bind(new_exchange.buyer)
+        .bind(new_exchange.seller)
+        .bind(new_exchange.asset)
+        .bind(new_exchange.pair)
+        .bind(new_exchange.price)
+        .bind(new_exchange.size)
+        .bind(new_exchange.volume)
+        .bind(new_exchange.fee)
+        .bind(new_exchange.buddy)
+        .fetch_one(pool)
+        .await
+        .map_err(DbError::SqlxError)?;
 
     Ok(exchange)
 }

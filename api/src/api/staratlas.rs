@@ -6,7 +6,7 @@
 use db::queries::staratlas;
 use db::{DbPool, Player, Token};
 
-use poem_openapi::{ApiResponse, Object, OpenApi, Tags, param::Query, payload::Json};
+use poem_openapi::{param::Query, payload::Json, ApiResponse, Object, OpenApi, Tags};
 
 /// Tags for the Star Atlas API
 #[derive(Tags)]
@@ -231,33 +231,44 @@ impl StarAtlasApi {
     )]
     async fn get_staratlas_exchanges(
         &self,
-        /// Filter by buyer ID
-        #[oai(name = "buyer_id")]
         buyer_id: Query<Option<i32>>,
-        /// Filter by seller ID
-        #[oai(name = "seller_id")]
         seller_id: Query<Option<i32>>,
-        /// Filter by asset ID
-        #[oai(name = "asset_id")]
         asset_id: Query<Option<i32>>,
+
+        offset: Query<Option<i32>>,
+        limit: Query<Option<i32>>,
     ) -> GetExchangeResponse {
+        let limit_value: i32 = limit.0.unwrap_or(1000);
+        let offset_value: i32 = offset.0.unwrap_or(0);
+
         let exchanges = if let Some(buyer_id) = buyer_id.0 {
-            match db::get_exchanges_by_buyer_id(&self.db_pool, buyer_id).await {
+            match db::get_exchanges_by_buyer_id(&self.db_pool, buyer_id, limit_value, offset_value)
+                .await
+            {
                 Ok(exchanges) => Some(exchanges),
                 Err(_) => None,
             }
         } else if let Some(seller_id) = seller_id.0 {
-            match db::get_exchanges_by_seller_id(&self.db_pool, seller_id).await {
+            match db::get_exchanges_by_seller_id(
+                &self.db_pool,
+                seller_id,
+                limit_value,
+                offset_value,
+            )
+            .await
+            {
                 Ok(exchanges) => Some(exchanges),
                 Err(_) => None,
             }
         } else if let Some(asset_id) = asset_id.0 {
-            match db::get_exchanges_by_asset_id(&self.db_pool, asset_id).await {
+            match db::get_exchanges_by_asset_id(&self.db_pool, asset_id, limit_value, offset_value)
+                .await
+            {
                 Ok(exchanges) => Some(exchanges),
                 Err(_) => None,
             }
         } else {
-            match db::get_all_exchanges(&self.db_pool).await {
+            match db::get_exchanges(&self.db_pool, limit_value, offset_value).await {
                 Ok(exchanges) => Some(exchanges),
                 Err(_) => None,
             }
