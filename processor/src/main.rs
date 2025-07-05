@@ -2,13 +2,13 @@ use crate::args::Args;
 
 use crate::convert::{processor_accounts, processor_data, processor_inner};
 use crate::processor::marketplace::MarketplaceProcessor;
-use base64::Engine;
+
 use clap::Parser;
 use db::update_program_signature_processed;
 use solana_client::rpc_client::RpcClient;
 use solana_client::rpc_config::RpcTransactionConfig;
 use solana_commitment_config::CommitmentConfig;
-use solana_sdk::packet::Encode;
+
 use solana_sdk::pubkey::Pubkey;
 use solana_sdk::signature::Signature;
 use solana_transaction_status::{

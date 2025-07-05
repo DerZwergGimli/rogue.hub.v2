@@ -168,7 +168,7 @@ impl MarketplaceProcessor {
                         }
                     }
                     UiParsedInstruction::PartiallyDecoded(partially) => {
-                        if (partially.program_id == decoder::extra::transferHook::ID.to_string()) {
+                        if (partially.program_id == decoder::extra::transfer_hook::ID.to_string()) {
                             continue;
                         }
 
