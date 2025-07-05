@@ -3,15 +3,10 @@
 //! This module provides the staratlas-exchanges [GET], staratlas-player [GET],
 //! and staratlas-tokens [GET] endpoints as defined in the guidelines.
 
-use db::{DbPool, Player, Token};
 use db::queries::staratlas;
+use db::{DbPool, Player, Token};
 
-use poem_openapi::{
-    param::Query, payload::Json, ApiResponse,
-    Object,
-    OpenApi,
-    Tags,
-};
+use poem_openapi::{ApiResponse, Object, OpenApi, Tags, param::Query, payload::Json};
 
 /// Tags for the Star Atlas API
 #[derive(Tags)]
@@ -278,28 +273,37 @@ impl StarAtlasApi {
 
                     for exchange in exchanges {
                         // Resolve buyer ID to wallet address
-                        let buyer_wallet = match staratlas::get_player_by_id(&self.db_pool, exchange.buyer).await {
+                        let buyer_wallet = match staratlas::get_player_by_id(
+                            &self.db_pool,
+                            exchange.buyer,
+                        )
+                        .await
+                        {
                             Ok(Some(player)) => player.wallet_address,
                             _ => exchange.buyer.to_string(), // Fallback to ID as string if player not found
                         };
 
                         // Resolve seller ID to wallet address
-                        let seller_wallet = match staratlas::get_player_by_id(&self.db_pool, exchange.seller).await {
-                            Ok(Some(player)) => player.wallet_address,
-                            _ => exchange.seller.to_string(), // Fallback to ID as string if player not found
-                        };
+                        let seller_wallet =
+                            match staratlas::get_player_by_id(&self.db_pool, exchange.seller).await
+                            {
+                                Ok(Some(player)) => player.wallet_address,
+                                _ => exchange.seller.to_string(), // Fallback to ID as string if player not found
+                            };
 
                         // Resolve asset ID to mint address
-                        let asset_mint = match staratlas::get_token_by_id(&self.db_pool, exchange.asset).await {
-                            Ok(Some(token)) => token.mint,
-                            _ => exchange.asset.to_string(), // Fallback to ID as string if token not found
-                        };
+                        let asset_mint =
+                            match staratlas::get_token_by_id(&self.db_pool, exchange.asset).await {
+                                Ok(Some(token)) => token.mint,
+                                _ => exchange.asset.to_string(), // Fallback to ID as string if token not found
+                            };
 
                         // Resolve pair ID to mint address
-                        let pair_mint = match staratlas::get_token_by_id(&self.db_pool, exchange.pair).await {
-                            Ok(Some(token)) => token.mint,
-                            _ => exchange.pair.to_string(), // Fallback to ID as string if token not found
-                        };
+                        let pair_mint =
+                            match staratlas::get_token_by_id(&self.db_pool, exchange.pair).await {
+                                Ok(Some(token)) => token.mint,
+                                _ => exchange.pair.to_string(), // Fallback to ID as string if token not found
+                            };
 
                         exchange_responses.push(ExchangeResponse {
                             id: exchange.id,

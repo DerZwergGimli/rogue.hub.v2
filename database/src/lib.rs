@@ -9,7 +9,7 @@ mod models;
 pub mod queries;
 mod types;
 
-pub use connection::{establish_connection, DbPool};
+pub use connection::{DbPool, establish_connection};
 pub use error::{DbError, Result};
 pub use types::*;
 

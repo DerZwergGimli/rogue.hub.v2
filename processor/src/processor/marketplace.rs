@@ -2,8 +2,8 @@ use crate::convert::convert_to_decimal;
 use chrono::DateTime;
 use db::DbPool;
 use decoder::staratlas::marketplace::{DecodedInstruction, ProcessExchange};
-use rust_decimal::prelude::ToPrimitive;
 use rust_decimal::Decimal;
+use rust_decimal::prelude::ToPrimitive;
 use solana_sdk::pubkey::Pubkey;
 use solana_transaction_status::{UiInstruction, UiParsedInstruction};
 

@@ -22,11 +22,10 @@ pub async fn establish_connection() -> Result<DbPool> {
     dotenv::dotenv().ok();
 
     // Get the database URL from the environment
-    let database_url = env::var("DATABASE_URL")
-        .map_err(|e| {
-            log::error!("DATABASE_URL environment variable not set");
-            e
-        })?;
+    let database_url = env::var("DATABASE_URL").map_err(|e| {
+        log::error!("DATABASE_URL environment variable not set");
+        e
+    })?;
 
     // Create a connection pool with reasonable defaults
     let pool = PgPoolOptions::new()
@@ -40,13 +39,10 @@ pub async fn establish_connection() -> Result<DbPool> {
         })?;
 
     // Test the connection
-    sqlx::query("SELECT 1")
-        .execute(&pool)
-        .await
-        .map_err(|e| {
-            log::error!("Failed to execute test query: {}", e);
-            DbError::SqlxError(e)
-        })?;
+    sqlx::query("SELECT 1").execute(&pool).await.map_err(|e| {
+        log::error!("Failed to execute test query: {}", e);
+        DbError::SqlxError(e)
+    })?;
 
     log::info!("Successfully connected to database");
     Ok(pool)
@@ -75,13 +71,10 @@ pub async fn establish_connection_with_url(database_url: &str) -> Result<DbPool>
         })?;
 
     // Test the connection
-    sqlx::query("SELECT 1")
-        .execute(&pool)
-        .await
-        .map_err(|e| {
-            log::error!("Failed to execute test query: {}", e);
-            DbError::SqlxError(e)
-        })?;
+    sqlx::query("SELECT 1").execute(&pool).await.map_err(|e| {
+        log::error!("Failed to execute test query: {}", e);
+        DbError::SqlxError(e)
+    })?;
 
     log::info!("Successfully connected to database");
     Ok(pool)

@@ -10,7 +10,7 @@ use anyhow::Result;
 use db::establish_connection;
 use dotenv::dotenv;
 use log::{info, warn};
-use poem::{listener::TcpListener, middleware::Cors, EndpointExt, Route, Server};
+use poem::{EndpointExt, Route, Server, listener::TcpListener, middleware::Cors};
 use poem_openapi::OpenApiService;
 
 mod api;

@@ -5,8 +5,8 @@
 
 use db::{DbPool, Indexer as IndexerDB, PublicKeyType, SignatureType};
 use poem_openapi::{
-    payload::{Html, Json}, ApiResponse, Object, OpenApi,
-    Tags,
+    ApiResponse, Object, OpenApi, Tags,
+    payload::{Html, Json},
 };
 
 /// Tags for the indexer API

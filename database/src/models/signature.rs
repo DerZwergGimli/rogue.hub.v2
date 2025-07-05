@@ -1,8 +1,8 @@
 //! Models for the indexer.signatures and indexer.program_signatures tables
 
 use crate::types::{PublicKeyType, SignatureType};
-use sqlx::types::chrono::{DateTime, Utc};
 use sqlx::FromRow;
+use sqlx::types::chrono::{DateTime, Utc};
 
 /// Represents a signature record in the indexer.signatures table
 #[derive(Debug, FromRow, Clone)]

@@ -1,7 +1,7 @@
 //! Models for the market schema
 
-use sqlx::types::chrono::{DateTime, Utc};
 use sqlx::FromRow;
+use sqlx::types::chrono::{DateTime, Utc};
 
 /// Represents an exchange record in the market.exchanges table
 #[derive(Debug, FromRow, Clone)]

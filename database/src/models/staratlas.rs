@@ -1,7 +1,7 @@
 //! Models for the staratlas schema
 
-use sqlx::types::chrono::{DateTime, Utc};
 use sqlx::FromRow;
+use sqlx::types::chrono::{DateTime, Utc};
 
 /// Represents a token record in the staratlas.tokens table
 #[derive(Debug, FromRow, Clone)]
