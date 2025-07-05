@@ -10,5 +10,4 @@ no-entrypoint = []
 [dependencies]
 solana-sdk = { workspace = true }
 borsh = { workspace = true }
-borsh-derive = { workspace = true }
 anchor-decoder = { workspace = true }

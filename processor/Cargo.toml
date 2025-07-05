@@ -14,14 +14,11 @@ dotenv = { workspace = true }
 chrono.workspace = true
 db.workspace = true
 decoder.workspace = true
-serde_json.workspace = true
 
 solana-client.workspace = true
 solana-sdk.workspace = true
 solana-commitment-config.workspace = true
 solana-transaction-status.workspace = true
-solana-account-decoder.workspace = true
-base64 = "0.21.0"
 bs58 = "0.5.1"
 hex = "0.4.3"
 rust_decimal.workspace = true

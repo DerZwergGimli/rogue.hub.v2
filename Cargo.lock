@@ -1194,7 +1194,6 @@ version = "0.1.0"
 dependencies = [
  "anchor-decoder",
  "borsh 0.10.4",
- "borsh-derive 0.10.4",
  "solana-sdk",
 ]
 
@@ -3169,7 +3168,6 @@ name = "processor"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "base64 0.21.7",
  "bs58",
  "chrono",
  "clap",
@@ -3180,8 +3178,6 @@ dependencies = [
  "hex",
  "log",
  "rust_decimal",
- "serde_json",
- "solana-account-decoder",
  "solana-client",
  "solana-commitment-config",
  "solana-sdk",
