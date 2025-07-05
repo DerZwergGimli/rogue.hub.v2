@@ -20,8 +20,8 @@ use crate::types::PublicKeyType;
 pub async fn get_all_indexers(pool: &DbPool) -> Result<Vec<Indexer>> {
     let indexers = sqlx::query_as::<_, Indexer>(
         r#"
-        SELECT id, name, direction, program_id, before_signature, until_signature, 
-               before_block, until_block, finished, fetch_limit
+        SELECT id, name, direction, program_id, signature, block, timestamp,
+            finished, fetch_limit
         FROM indexer.indexer
         ORDER BY id
         "#,
@@ -47,8 +47,8 @@ pub async fn get_all_indexers(pool: &DbPool) -> Result<Vec<Indexer>> {
 pub async fn get_indexer_by_id(pool: &DbPool, id: i32) -> Result<Option<Indexer>> {
     let indexer = sqlx::query_as::<_, Indexer>(
         r#"
-        SELECT id, name, direction, program_id, before_signature, until_signature, 
-               before_block, until_block, finished, fetch_limit
+        SELECT id, name, direction, program_id, signature, block, timestamp,
+            finished, fetch_limit
         FROM indexer.indexer
         WHERE id = $1
         "#,
@@ -78,8 +78,8 @@ pub async fn get_indexers_by_program_id(
 ) -> Result<Vec<Indexer>> {
     let indexers = sqlx::query_as::<_, Indexer>(
         r#"
-        SELECT id, name, direction, program_id, before_signature, until_signature, 
-               before_block, until_block, finished, fetch_limit
+        SELECT id, name, direction, program_id, signature, signature,
+               timestamp , finished, fetch_limit
         FROM indexer.indexer
         WHERE program_id = $1
         ORDER BY id
@@ -107,8 +107,8 @@ pub async fn get_indexers_by_program_id(
 pub async fn get_indexers_by_name(pool: &DbPool, name: &str) -> Result<Vec<Indexer>> {
     let indexers = sqlx::query_as::<_, Indexer>(
         r#"
-        SELECT id, name, direction, program_id, before_signature, until_signature, 
-               before_block, until_block, finished, fetch_limit
+        SELECT id, name, direction, program_id, signature, block, timestamp,
+               finished, fetch_limit
         FROM indexer.indexer
         WHERE name = $1
         ORDER BY id
@@ -137,24 +137,23 @@ pub async fn create_indexer(pool: &DbPool, new_indexer: &NewIndexer) -> Result<I
     let indexer = sqlx::query_as::<_, Indexer>(
         r#"
         INSERT INTO indexer.indexer (
-            id, name, direction, program_id, before_signature, until_signature, 
-            before_block, until_block, finished, fetch_limit
+            id, name, direction, program_id, signature, block, timestamp,
+            finished, fetch_limit
         )
         VALUES (
-            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
+            $1, $2, $3, $4, $5, $6, $7, $8, $9
         )
-        RETURNING id, name, direction, program_id, before_signature, until_signature, 
-                  before_block, until_block, finished, fetch_limit
+        RETURNING id, name, direction, program_id, signature, block, timestamp
+                   finished, fetch_limit
         "#,
     )
     .bind(new_indexer.id)
     .bind(&new_indexer.name)
     .bind(&new_indexer.direction)
     .bind(&new_indexer.program_id)
-    .bind(&new_indexer.before_signature)
-    .bind(&new_indexer.until_signature)
-    .bind(new_indexer.before_block)
-    .bind(new_indexer.until_block)
+    .bind(&new_indexer.signature)
+    .bind(&new_indexer.block)
+    .bind(&new_indexer.timestamp)
     .bind(new_indexer.finished)
     .bind(new_indexer.fetch_limit)
     .fetch_one(pool)
@@ -182,22 +181,20 @@ pub async fn update_indexer(pool: &DbPool, id: i32, update: &UpdateIndexer) -> R
         UPDATE indexer.indexer
         SET 
             direction = COALESCE($1, direction),
-            before_signature = $2,
-            until_signature = $3,
-            before_block = $4,
-            until_block = $5,
-            finished = $6,
-            fetch_limit = COALESCE($7, fetch_limit)
-        WHERE id = $8
-        RETURNING id, name, direction, program_id, before_signature, until_signature, 
-                  before_block, until_block, finished, fetch_limit
+            signature = $2,
+            block = $3,
+            finished = $4,
+            timestamp = $5
+            fetch_limit = COALESCE($6, fetch_limit)
+        WHERE id = $7
+        RETURNING id, name, direction, program_id, signature, block, timestamp, 
+                   finished, fetch_limit
         "#,
     )
     .bind(&update.direction)
-    .bind(&update.before_signature)
-    .bind(&update.until_signature)
-    .bind(update.before_block)
-    .bind(update.until_block)
+    .bind(&update.signature)
+    .bind(&update.block)
+    .bind(&update.timestamp)
     .bind(update.finished)
     .bind(update.fetch_limit)
     .bind(id)

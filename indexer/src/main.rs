@@ -36,6 +36,11 @@ pub async fn main() -> anyhow::Result<()> {
 
     let db_indexers = db::get_indexers_by_name(&pool, &indexer_name).await?;
 
+    if db_indexers.len() == 0 {
+        log::error!("No indexer named {:?} found!", &indexer_name);
+        return Ok(());
+    }
+
     let client = RpcClient::new_with_commitment(
         String::from(env::var("RPC_URL").expect("RPC_URL must be set")),
         CommitmentConfig::confirmed(),
@@ -53,14 +58,14 @@ pub async fn main() -> anyhow::Result<()> {
         let mut until_signature = None;
 
         match db_indexer.direction {
-            Direction::New => {
-                until_signature = match db_indexer.until_signature {
+            Direction::UP => {
+                until_signature = match db_indexer.signature {
                     None => None,
                     Some(signature) => Some(Signature::from_str(signature.as_str())?),
                 };
             }
-            Direction::Old => {
-                before_signature = match db_indexer.before_signature {
+            Direction::DOWN => {
+                before_signature = match db_indexer.signature {
                     None => Some(Signature::from_str(
                         &db::get_last_program_signature_by_program_id(
                             &pool,
@@ -106,24 +111,26 @@ pub async fn main() -> anyhow::Result<()> {
             .await?;
 
             let new_indexer = match db_indexer.direction {
-                Direction::New => {
+                Direction::UP => {
                     UpdateIndexer {
                         direction: None, // Using None to keep the existing direction
-                        before_signature: None,
-                        until_signature: Some(signature.signature.clone()),
-                        before_block: None,
-                        until_block: Some(signature.slot as i64),
+                        signature: Some(signature.signature.clone()),
+                        block: Some(signature.slot as i64),
+                        timestamp: Some(
+                            DateTime::from_timestamp(signature.block_time.unwrap(), 0).unwrap(),
+                        ),
                         finished: Some(false),
                         fetch_limit: None, // Keep the existing fetch_limit
                     }
                 }
-                Direction::Old => {
+                Direction::DOWN => {
                     UpdateIndexer {
                         direction: None, // Using None to keep the existing direction
-                        before_signature: Some(signature.signature.clone()),
-                        until_signature: None,
-                        before_block: Some(signature.slot as i64),
-                        until_block: None,
+                        signature: Some(signature.signature.clone()),
+                        block: Some(signature.slot as i64),
+                        timestamp: Some(
+                            DateTime::from_timestamp(signature.block_time.unwrap(), 0).unwrap(),
+                        ),
                         finished: Some(false),
                         fetch_limit: None, // Keep the existing fetch_limit
                     }
@@ -131,7 +138,7 @@ pub async fn main() -> anyhow::Result<()> {
             };
 
             match db_indexer.direction {
-                Direction::New => match db_indexer.until_block {
+                Direction::UP => match db_indexer.block {
                     None => {
                         db::update_indexer(&pool, db_indexer.id, &new_indexer).await?;
                     }
@@ -141,7 +148,7 @@ pub async fn main() -> anyhow::Result<()> {
                         }
                     }
                 },
-                Direction::Old => {
+                Direction::DOWN => {
                     db::update_indexer(&pool, db_indexer.id, &new_indexer).await?;
                 }
             }
@@ -153,7 +160,7 @@ pub async fn main() -> anyhow::Result<()> {
                 db_indexer.name.clone().unwrap(),
                 program_id
             );
-            if db_indexer.direction == Direction::Old {
+            if db_indexer.direction == Direction::DOWN {
                 println!("Finished all");
                 return Ok(());
             }
