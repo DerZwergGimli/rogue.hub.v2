@@ -6,7 +6,7 @@ pub type SignatureType = String;
 
 /// Direction of indexing (OLD or NEW)
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Type)]
-#[sqlx(type_name = "direction_type", rename_all = "UPPERCASE")]
+#[sqlx(type_name = "indexer.direction_type", rename_all = "UPPERCASE")]
 pub enum Direction {
     /// Old direction
     Old,
