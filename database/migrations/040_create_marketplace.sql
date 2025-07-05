@@ -5,7 +5,7 @@ CREATE TABLE market.exchanges
 (
     id        SERIAL PRIMARY KEY,
     slot      INTEGER                         NOT NULL,
-    signature VARCHAR(255)                    NOT NULL,
+    signature VARCHAR(88)                    NOT NULL,
     index     integer                         NOT NULL,
     timestamp      TIMESTAMPTZ                     NOT NULL,
     side      VARCHAR(4)                      NOT NULL,
@@ -28,5 +28,4 @@ CREATE INDEX IF NOT EXISTS idx_marketplace_exchanges_seller_id ON market.exchang
 
 ALTER TABLE market.exchanges
     ADD CONSTRAINT unique_txhash_index UNIQUE (signature, index);
-
 
