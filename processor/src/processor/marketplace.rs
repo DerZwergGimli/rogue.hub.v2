@@ -2,8 +2,8 @@ use crate::convert::convert_to_decimal;
 use chrono::DateTime;
 use db::DbPool;
 use decoder::staratlas::marketplace::{DecodedInstruction, ProcessExchange};
-use rust_decimal::Decimal;
 use rust_decimal::prelude::ToPrimitive;
+use rust_decimal::Decimal;
 use solana_sdk::pubkey::Pubkey;
 use solana_transaction_status::{UiInstruction, UiParsedInstruction};
 
@@ -328,6 +328,50 @@ impl MarketplaceProcessor {
                         asset_amount = convert_to_decimal(
                             mapped_inner[2].clone().amount.unwrap(),
                             mapped_inner[2].clone().decimals.unwrap(),
+                        );
+                    }
+                    _ => panic!("Unhandled side"),
+                }
+            }
+
+            [
+                "BUDDYtQp7Di1xfojiCSVDksiYLQx511DPdj2nbtG9Yu5",
+                "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            ] => {
+                side = Self::get_side(currency_mint, &mut mapped_inner, 3);
+                match side.as_str() {
+                    "BUY" => {
+                        fee_amount = convert_to_decimal(
+                            mapped_inner[1].clone().amount.unwrap(),
+                            mapped_inner[1].clone().decimals.unwrap(),
+                        );
+
+                        asset_amount = convert_to_decimal(
+                            mapped_inner[2].clone().amount.unwrap(),
+                            mapped_inner[2].clone().decimals.unwrap(),
+                        );
+
+                        currency_amount = convert_to_decimal(
+                            mapped_inner[3].clone().amount.unwrap(),
+                            mapped_inner[3].clone().decimals.unwrap(),
+                        );
+                    }
+                    "SELL" => {
+                        fee_amount = convert_to_decimal(
+                            mapped_inner[1].clone().amount.unwrap(),
+                            mapped_inner[1].clone().decimals.unwrap(),
+                        );
+
+                        currency_amount = convert_to_decimal(
+                            mapped_inner[2].clone().amount.unwrap(),
+                            mapped_inner[2].clone().decimals.unwrap(),
+                        );
+
+                        asset_amount = convert_to_decimal(
+                            mapped_inner[3].clone().amount.unwrap(),
+                            mapped_inner[3].clone().decimals.unwrap(),
                         );
                     }
                     _ => panic!("Unhandled side"),
