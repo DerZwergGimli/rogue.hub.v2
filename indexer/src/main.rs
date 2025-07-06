@@ -16,6 +16,7 @@ mod args;
 
 const SLEEP: Duration = Duration::from_secs(5);
 const GAP_FILL_LIMIT: usize = 100;
+const MAX_ATTEMPTS: usize = 5;
 #[tokio::main]
 pub async fn main() -> anyhow::Result<()> {
     use chrono::Utc;
@@ -189,7 +190,7 @@ pub async fn main() -> anyhow::Result<()> {
                 };
                 client.get_signatures_for_address_with_config(&program_id, signatures_for_config)
             },
-            5, // max_attempts
+            MAX_ATTEMPTS,
         )
         .await?;
 
