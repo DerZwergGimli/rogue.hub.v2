@@ -287,16 +287,20 @@ where
             Err(e) => {
                 attempt += 1;
                 if attempt >= max_attempts {
-                    eprintln!(
-                        "[ERROR] RPC error: {}. Max attempts ({}) reached. Giving up.",
-                        e, max_attempts
+                    log::error!(
+                        "RPC error: {}. Max attempts ({}) reached. Giving up.",
+                        e,
+                        max_attempts
                     );
                     return Err(e); // Or anyhow::Error::from(e) if you prefer
                 }
                 let wait = std::cmp::min(30, attempt * 3);
-                eprintln!(
-                    "[WARN] RPC error: {}. Attempt {}/{}. Retrying in {}s...",
-                    e, attempt, max_attempts, wait
+                log::warn!("RPC error: {}", e);
+                log::warn!(
+                    "Attempt {}/{}. Retrying in {}s...",
+                    attempt,
+                    max_attempts,
+                    wait
                 );
                 sleep(Duration::from_secs(wait as u64)).await;
             }
