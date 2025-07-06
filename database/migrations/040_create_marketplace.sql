@@ -25,6 +25,7 @@ CREATE INDEX IF NOT EXISTS idx_marketplace_exchanges_side ON market.exchanges (s
 CREATE INDEX IF NOT EXISTS idx_marketplace_exchanges_asset_pair ON market.exchanges (asset, pair);
 CREATE INDEX IF NOT EXISTS idx_marketplace_exchanges_buyer_id ON market.exchanges (buyer);
 CREATE INDEX IF NOT EXISTS idx_marketplace_exchanges_seller_id ON market.exchanges (seller);
+CREATE INDEX IF NOT EXISTS idx_exchanges_asset_pair_timestamp ON market.exchanges (asset, pair, timestamp);
 
 ALTER TABLE market.exchanges
     ADD CONSTRAINT unique_txhash_index UNIQUE (signature, index);
