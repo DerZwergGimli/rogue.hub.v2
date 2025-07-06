@@ -5,10 +5,11 @@ use crate::processor::marketplace::MarketplaceProcessor;
 
 use clap::Parser;
 use db::update_program_signature_processed;
-use solana_client::rpc_client::RpcClient;
+use solana_client::rpc_client::{GetConfirmedSignaturesForAddress2Config, RpcClient};
 use solana_client::rpc_config::RpcTransactionConfig;
 use solana_commitment_config::CommitmentConfig;
 
+use solana_client::client_error::ClientError;
 use solana_sdk::pubkey::Pubkey;
 use solana_sdk::signature::Signature;
 use solana_transaction_status::{
@@ -24,7 +25,7 @@ mod convert;
 mod processor;
 
 const SLEEP: Duration = Duration::from_secs(5);
-
+const MAX_ATTEMPTS: usize = 5;
 #[tokio::main]
 pub async fn main() -> anyhow::Result<()> {
     dotenv::dotenv().ok();
@@ -79,10 +80,16 @@ pub async fn main() -> anyhow::Result<()> {
         for db_signature in db_signatures {
             log::info!("Processing signature: {:?}", db_signature);
 
-            let transaction = client.get_transaction_with_config(
-                &Signature::from_str(db_signature.as_str()).unwrap(),
-                transaction_config,
-            )?;
+            let transaction = rpc_with_retry(
+                || {
+                    client.get_transaction_with_config(
+                        &Signature::from_str(db_signature.as_str()).unwrap(),
+                        transaction_config,
+                    )
+                },
+                MAX_ATTEMPTS,
+            )
+            .await?;
 
             let transaction_meta = transaction.transaction.meta.unwrap();
 
@@ -160,5 +167,37 @@ pub async fn main() -> anyhow::Result<()> {
         }
 
         sleep(SLEEP).await;
+    }
+}
+
+async fn rpc_with_retry<F, T>(mut f: F, max_attempts: usize) -> Result<T, ClientError>
+where
+    F: FnMut() -> Result<T, ClientError>,
+{
+    let mut attempt = 0;
+    loop {
+        match f() {
+            Ok(val) => return Ok(val),
+            Err(e) => {
+                attempt += 1;
+                if attempt >= max_attempts {
+                    log::error!(
+                        "RPC error: {}. Max attempts ({}) reached. Giving up.",
+                        e,
+                        max_attempts
+                    );
+                    return Err(e); // Or anyhow::Error::from(e) if you prefer
+                }
+                let wait = std::cmp::min(30, attempt * 3);
+                log::warn!("RPC error: {}", e);
+                log::warn!(
+                    "Attempt {}/{}. Retrying in {}s...",
+                    attempt,
+                    max_attempts,
+                    wait
+                );
+                sleep(Duration::from_secs(wait as u64)).await;
+            }
+        }
     }
 }
