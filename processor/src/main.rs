@@ -166,6 +166,7 @@ pub async fn main() -> anyhow::Result<()> {
             .await?;
         }
 
+        log::info!("All processed. Sleeping for {}s", SLEEP.as_secs());
         sleep(SLEEP).await;
     }
 }
