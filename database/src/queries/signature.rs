@@ -244,7 +244,7 @@ pub async fn get_program_signatures_by_program_id(
 ///
 /// # Errors
 /// Returns an error if the query fails
-pub async fn get_last_program_signature_by_program_id(
+pub async fn get_oldest_program_signature_by_program_id(
     pool: &DbPool,
     program_id: &PublicKeyType,
 ) -> Result<Option<ProgramSignature>> {
@@ -266,7 +266,7 @@ pub async fn get_last_program_signature_by_program_id(
     Ok(program_signature)
 }
 
-pub async fn get_first_program_signature_by_program_id(
+pub async fn get_newest_program_signature_by_program_id(
     pool: &DbPool,
     program_id: &PublicKeyType,
 ) -> Result<Option<ProgramSignature>> {

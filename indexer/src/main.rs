@@ -125,7 +125,7 @@ pub async fn main() -> anyhow::Result<()> {
     if gap_filled_count > 0 {
         // Fetch the latest (highest slot) signature for the program from your DB
         if let Some(last_signature) =
-            db::get_first_program_signature_by_program_id(&pool, &program_id.to_string()).await?
+            db::get_newest_program_signature_by_program_id(&pool, &program_id.to_string()).await?
         {
             let latest_signature = last_signature.signature.clone();
 
@@ -164,7 +164,7 @@ pub async fn main() -> anyhow::Result<()> {
                     None => {
                         // If signature is None, get the latest signature from DB as starting point
                         Some(Signature::from_str(
-                            &db::get_last_program_signature_by_program_id(
+                            &db::get_oldest_program_signature_by_program_id(
                                 &pool,
                                 &program_id.to_string(),
                             )
