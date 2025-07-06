@@ -1,7 +1,7 @@
 use crate::args::Args;
 use chrono::DateTime;
 use clap::Parser;
-use db::{Direction, NewProgramSignature, NewSignature, UpdateIndexer};
+use db::{Direction, NewIndexer, NewProgramSignature, NewSignature, UpdateIndexer};
 use solana_client::rpc_client::{GetConfirmedSignaturesForAddress2Config, RpcClient};
 use solana_commitment_config::CommitmentConfig;
 use solana_sdk::pubkey::Pubkey;
@@ -14,9 +14,10 @@ use tokio::time::sleep;
 mod args;
 
 const SLEEP: Duration = Duration::from_secs(5);
-
+const GAP_FILL_LIMIT: usize = 100;
 #[tokio::main]
 pub async fn main() -> anyhow::Result<()> {
+    use chrono::Utc;
     dotenv::dotenv().ok();
 
     let indexer_name_to_use =
@@ -51,9 +52,100 @@ pub async fn main() -> anyhow::Result<()> {
     let indexer_name = db_indexer.name;
     let program_id = Pubkey::from_str(db_indexer.program_id.as_str())?;
 
-    log::info!("Indexer = [{}]", indexer_name);
-    log::info!("Program_ID = {}", program_id);
+    log::info!("> Indexer: [{}] [{}]", indexer_name, program_id);
 
+    // ----------- STEP 1: GAP FILL if direction is UP -----------
+    let mut gap_filled_count = 0;
+    if db_indexer.direction == Direction::UP {
+        if let Some(ref last_sig) = db_indexer.signature {
+            log::info!("Performing gap fill to ensure no missed signatures...");
+
+            let mut before: Option<Signature> = None;
+            let mut caught_up = false;
+
+            while !caught_up {
+                let config = GetConfirmedSignaturesForAddress2Config {
+                    before,
+                    until: None,
+                    limit: Some(GAP_FILL_LIMIT),
+                    commitment: CommitmentConfig::finalized().into(),
+                };
+
+                let signatures =
+                    client.get_signatures_for_address_with_config(&program_id, config)?;
+
+                if signatures.is_empty() {
+                    break;
+                }
+
+                for sig_info in &signatures {
+                    if sig_info.signature == *last_sig {
+                        caught_up = true;
+                        break;
+                    }
+                    gap_filled_count += 1;
+
+                    db::create_signature(
+                        &pool,
+                        &NewSignature {
+                            signature: sig_info.signature.to_string(),
+                            slot: sig_info.slot as i64,
+                            timestamp: DateTime::from_timestamp(sig_info.block_time.unwrap(), 0)
+                                .unwrap(),
+                        },
+                    )
+                    .await?;
+
+                    db::create_program_signature(
+                        &pool,
+                        &NewProgramSignature {
+                            program_id: program_id.to_string(),
+                            signature: sig_info.signature.to_string(),
+                            processed: false,
+                        },
+                    )
+                    .await?;
+                }
+
+                before = Some(Signature::from_str(&signatures.last().unwrap().signature)?);
+
+                // If less than limit, we've hit the beginning of available data.
+                if signatures.len() < GAP_FILL_LIMIT {
+                    break;
+                }
+            }
+
+            log::info!(
+                "Gap fill complete [{}]. Now polling for new signatures.",
+                gap_filled_count
+            );
+        }
+    }
+
+    if gap_filled_count > 0 {
+        // Fetch the latest (highest slot) signature for the program from your DB
+        if let Some(last_signature) =
+            db::get_first_program_signature_by_program_id(&pool, &program_id.to_string()).await?
+        {
+            let latest_signature = last_signature.signature.clone();
+
+            db::update_indexer(
+                &pool,
+                indexer_name.clone(),
+                &UpdateIndexer {
+                    signature: Some(latest_signature),
+                    block: None,
+                    timestamp: None,
+                    direction: None,
+                    finished: None,
+                    fetch_limit: None,
+                },
+            )
+            .await?;
+        }
+    }
+
+    // ----------- STEP 2: MAIN POLLING LOOP -----------
     loop {
         let db_indexer = db::get_indexer_by_name(&pool, &indexer_name).await?;
 
@@ -64,21 +156,24 @@ pub async fn main() -> anyhow::Result<()> {
             Direction::UP => {
                 until_signature = match db_indexer.signature {
                     None => None,
-                    Some(signature) => Some(Signature::from_str(signature.as_str())?),
+                    Some(ref signature) => Some(Signature::from_str(signature.as_str())?),
                 };
             }
             Direction::DOWN => {
                 before_signature = match db_indexer.signature {
-                    None => Some(Signature::from_str(
-                        &db::get_last_program_signature_by_program_id(
-                            &pool,
-                            &program_id.to_string(),
-                        )
-                        .await?
-                        .unwrap()
-                        .signature,
-                    )?),
-                    Some(signature) => Some(Signature::from_str(signature.as_str())?),
+                    None => {
+                        // If signature is None, get the latest signature from DB as starting point
+                        Some(Signature::from_str(
+                            &db::get_last_program_signature_by_program_id(
+                                &pool,
+                                &program_id.to_string(),
+                            )
+                            .await?
+                            .unwrap()
+                            .signature,
+                        )?)
+                    }
+                    Some(ref signature) => Some(Signature::from_str(signature.as_str())?),
                 };
             }
         }
@@ -93,13 +188,13 @@ pub async fn main() -> anyhow::Result<()> {
         let signatures =
             client.get_signatures_for_address_with_config(&program_id, signatures_for_config)?;
 
-        for signature in signatures.clone() {
+        for sig_info in signatures.clone() {
             db::create_signature(
                 &pool,
                 &NewSignature {
-                    signature: signature.signature.to_string(),
-                    slot: signature.slot as i64,
-                    timestamp: DateTime::from_timestamp(signature.block_time.unwrap(), 0).unwrap(),
+                    signature: sig_info.signature.to_string(),
+                    slot: sig_info.slot as i64,
+                    timestamp: DateTime::from_timestamp(sig_info.block_time.unwrap(), 0).unwrap(),
                 },
             )
             .await?;
@@ -107,37 +202,33 @@ pub async fn main() -> anyhow::Result<()> {
                 &pool,
                 &NewProgramSignature {
                     program_id: program_id.to_string(),
-                    signature: signature.signature.to_string(),
+                    signature: sig_info.signature.to_string(),
                     processed: false,
                 },
             )
             .await?;
 
             let new_indexer = match db_indexer.direction {
-                Direction::UP => {
-                    UpdateIndexer {
-                        direction: None, // Using None to keep the existing direction
-                        signature: Some(signatures.first().unwrap().clone().signature),
-                        block: Some(signatures.first().unwrap().clone().slot as i64),
-                        timestamp: Some(
-                            DateTime::from_timestamp(signature.block_time.unwrap(), 0).unwrap(),
-                        ),
-                        finished: Some(false),
-                        fetch_limit: None, // Keep the existing fetch_limit
-                    }
-                }
-                Direction::DOWN => {
-                    UpdateIndexer {
-                        direction: None, // Using None to keep the existing direction
-                        signature: Some(signature.signature),
-                        block: Some(signature.slot as i64),
-                        timestamp: Some(
-                            DateTime::from_timestamp(signature.block_time.unwrap(), 0).unwrap(),
-                        ),
-                        finished: Some(false),
-                        fetch_limit: None, // Keep the existing fetch_limit
-                    }
-                }
+                Direction::UP => UpdateIndexer {
+                    direction: None,
+                    signature: Some(signatures.first().unwrap().clone().signature),
+                    block: Some(signatures.first().unwrap().clone().slot as i64),
+                    timestamp: Some(
+                        DateTime::from_timestamp(sig_info.block_time.unwrap(), 0).unwrap(),
+                    ),
+                    finished: Some(false),
+                    fetch_limit: None,
+                },
+                Direction::DOWN => UpdateIndexer {
+                    direction: None,
+                    signature: Some(sig_info.signature.clone()),
+                    block: Some(sig_info.slot as i64),
+                    timestamp: Some(
+                        DateTime::from_timestamp(sig_info.block_time.unwrap(), 0).unwrap(),
+                    ),
+                    finished: Some(false),
+                    fetch_limit: None,
+                },
             };
 
             match db_indexer.direction {
@@ -146,7 +237,7 @@ pub async fn main() -> anyhow::Result<()> {
                         db::update_indexer(&pool, db_indexer.name.clone(), &new_indexer).await?;
                     }
                     Some(until_block) => {
-                        if until_block < signature.slot as i64 {
+                        if until_block < sig_info.slot as i64 {
                             db::update_indexer(&pool, db_indexer.name.clone(), &new_indexer)
                                 .await?;
                         }
@@ -158,7 +249,7 @@ pub async fn main() -> anyhow::Result<()> {
             }
         }
 
-        if signatures.len() == 0 {
+        if signatures.is_empty() {
             log::info!(
                 "[{:?}] no new signatures for {}",
                 db_indexer.name,

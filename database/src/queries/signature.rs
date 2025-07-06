@@ -118,6 +118,7 @@ pub async fn create_signature(pool: &DbPool, new_signature: &NewSignature) -> Re
         VALUES (
             $1, $2, $3
         )
+
         RETURNING signature, slot, timestamp
         "#,
     )
@@ -125,6 +126,32 @@ pub async fn create_signature(pool: &DbPool, new_signature: &NewSignature) -> Re
     .bind(new_signature.slot)
     .bind(new_signature.timestamp)
     .fetch_one(pool)
+    .await
+    .map_err(DbError::SqlxError)?;
+
+    Ok(signature)
+}
+
+pub async fn create_signature_unchecked(
+    pool: &DbPool,
+    new_signature: &NewSignature,
+) -> Result<Option<Signature>> {
+    let signature = sqlx::query_as::<_, Signature>(
+        r#"
+        INSERT INTO indexer.signatures (
+            signature, slot, timestamp
+        )
+        VALUES (
+            $1, $2, $3
+        )
+        ON CONFLICT DO NOTHING
+        RETURNING signature, slot, timestamp
+        "#,
+    )
+    .bind(&new_signature.signature)
+    .bind(new_signature.slot)
+    .bind(new_signature.timestamp)
+    .fetch_optional(pool)
     .await
     .map_err(DbError::SqlxError)?;
 
@@ -239,6 +266,28 @@ pub async fn get_last_program_signature_by_program_id(
     Ok(program_signature)
 }
 
+pub async fn get_first_program_signature_by_program_id(
+    pool: &DbPool,
+    program_id: &PublicKeyType,
+) -> Result<Option<ProgramSignature>> {
+    let program_signature = sqlx::query_as::<_, ProgramSignature>(
+        r#"
+        SELECT ps.program_id, ps.signature, ps.processed
+        FROM indexer.program_signatures ps
+        JOIN indexer.signatures s ON ps.signature = s.signature
+        WHERE program_id = $1
+        ORDER BY s.timestamp DESC 
+        LIMIT 1
+        "#,
+    )
+    .bind(program_id)
+    .fetch_optional(pool)
+    .await
+    .map_err(DbError::SqlxError)?;
+
+    Ok(program_signature)
+}
+
 /// Retrieves unprocessed program signatures by program ID
 ///
 /// # Arguments
@@ -303,6 +352,32 @@ pub async fn create_program_signature(
     .bind(&new_program_signature.signature)
     .bind(new_program_signature.processed)
     .fetch_one(pool)
+    .await
+    .map_err(DbError::SqlxError)?;
+
+    Ok(program_signature)
+}
+
+pub async fn create_program_signature_unchecked(
+    pool: &DbPool,
+    new_program_signature: &NewProgramSignature,
+) -> Result<Option<ProgramSignature>> {
+    let program_signature = sqlx::query_as::<_, ProgramSignature>(
+        r#"
+        INSERT INTO indexer.program_signatures (
+            program_id, signature, processed
+        )
+        VALUES (
+            $1, $2, $3
+        )
+        ON CONFLICT DO NOTHING
+        RETURNING program_id, signature, processed
+        "#,
+    )
+    .bind(&new_program_signature.program_id)
+    .bind(&new_program_signature.signature)
+    .bind(new_program_signature.processed)
+    .fetch_optional(pool)
     .await
     .map_err(DbError::SqlxError)?;
 
