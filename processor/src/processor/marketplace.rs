@@ -85,11 +85,21 @@ impl MarketplaceProcessor {
             | Some(DecodedInstruction::InitializeOpenOrdersCounter)
             | Some(DecodedInstruction::UpdateAtlasRate(_)) => Ok(()),
 
-            _ => panic!(
-                "Unhandled marketplace instruction [{}] {:?}",
-                signature,
-                hex::encode(data)
-            ),
+            _ => match data.get(..8) {
+                // Unknown Instruction
+                Some(discriminator)
+                    if discriminator == &[0x12, 0xa3, 0xf2, 0x63, 0x76, 0x0e, 0xc7, 0x56] =>
+                {
+                    Ok(())
+                }
+                _ => {
+                    panic!(
+                        "Unhandled marketplace instruction [{}] {:?}",
+                        signature,
+                        hex::encode(data)
+                    );
+                }
+            },
         }
     }
 
