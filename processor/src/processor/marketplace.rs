@@ -79,6 +79,7 @@ impl MarketplaceProcessor {
                 Ok(())
             }
 
+            //Ignore
             Some(DecodedInstruction::ProcessInitializeBuy(_))
             | Some(DecodedInstruction::ProcessInitializeSell(_))
             | Some(DecodedInstruction::ProcessCancel)
@@ -86,9 +87,15 @@ impl MarketplaceProcessor {
             | Some(DecodedInstruction::UpdateAtlasRate(_)) => Ok(()),
 
             _ => match data.get(..8) {
-                // Unknown Instruction
+                // Unknown Instruction 2RKjPtr8JKgdPj3ojERKjigasPLZELjJLGpWpo1gGGzZTqH8gNFhT6yhX1X7j75bkLkDw2BjVMRDvbc8BGZ5NBdt
                 Some(discriminator)
                     if discriminator == &[0x12, 0xa3, 0xf2, 0x63, 0x76, 0x0e, 0xc7, 0x56] =>
+                {
+                    Ok(())
+                }
+                // Unknown Instruction 2Ccukf9ZFX86geLZd7fUnaepKkPmWyytMevcwj9xmGyw7ZUHY3L3kgHaWwDG9Cw997js2aXwcuk7uep7PEpGeiua
+                Some(discriminator)
+                    if discriminator == &[0x82, 0xb8, 0x0d, 0xb0, 0x47, 0x23, 0x82, 0x38] =>
                 {
                     Ok(())
                 }
